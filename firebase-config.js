@@ -14,9 +14,9 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-const analytics = getAnalytics(app);
 
-// Log success
+// Create database reference
+const database = firebase.database();
+
 console.log("✅ Firebase initialized successfully!");
-console.log("Database URL:", firebaseConfig.databaseURL);
+console.log("Database:", database);

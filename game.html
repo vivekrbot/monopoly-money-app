@@ -3,35 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Room</title>
+  <title>Game Room - Monopoly Money</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="game-container">
+    <!-- Top corner buttons -->
     <div class="header">
-      <button id="resetBtn" class="icon-btn">🔄</button>
-      <button id="refreshBtn" class="icon-btn">↻</button>
+      <button id="resetBtn" class="icon-btn" title="Reset Balance">🔄</button>
+      <button id="refreshBtn" class="icon-btn" title="Refresh Page">↻</button>
     </div>
     
+    <!-- Player info -->
     <div class="player-info">
       <h2>👋 Hello <span id="playerNameDisplay">Player</span>!</h2>
-      <p>Room ID #<span id="roomIdDisplay">000000</span></p>
+      <p class="room-id">Room ID #<span id="roomIdDisplay">000000</span></p>
     </div>
 
+    <!-- Balance display -->
     <div class="balance">
       <h1>₹ <span id="balanceAmount">3000</span></h1>
       <p>Balance Amount</p>
     </div>
 
+    <!-- Opponent info -->
     <div class="opponent">
       <p>Opp.Player: <span id="opponentName">Waiting...</span></p>
     </div>
 
+    <!-- Action buttons -->
     <div class="action-buttons">
       <button id="sendToPlayer" class="btn-primary">Send to Player</button>
       <button id="sendToBank" class="btn-outline">Send to Bank</button>
     </div>
 
+    <!-- Amount selection grid -->
     <div class="amount-grid">
       <button class="amount-btn" data-amount="1">1</button>
       <button class="amount-btn" data-amount="5">5</button>
@@ -42,13 +48,21 @@
       <button class="amount-btn" data-amount="500">500</button>
     </div>
 
+    <!-- Undo button -->
     <button id="undoBtn" class="btn-undo">↶ Undo</button>
+
+    <!-- Leave room button -->
     <button id="leaveRoom" class="btn-leave">Leave Room</button>
   </div>
 
+  <!-- Firebase SDK - Compat version -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+  <!-- Firebase Configuration -->
   <script src="firebase-config.js"></script>
+  
+  <!-- App Logic -->
   <script src="app.js"></script>
 </body>
 </html>

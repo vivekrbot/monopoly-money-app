@@ -3,20 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monopoly Money</title>
+  <title>Monopoly Money App</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <h1>Enter your name and Create or Join Room</h1>
-    <input type="text" id="playerName" placeholder="Name">
+    
+    <input type="text" id="playerName" placeholder="Name" autocomplete="off">
+    
     <button id="createRoom" class="btn-primary">Create Room</button>
     <button id="joinRoom" class="btn-secondary">Join Room</button>
   </div>
 
+  <!-- Firebase SDK - Compat version (NO MODULE NEEDED) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+  <!-- Firebase Configuration -->
   <script src="firebase-config.js"></script>
+  
+  <!-- App Logic -->
   <script src="app.js"></script>
 </body>
 </html>
