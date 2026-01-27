@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Room</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-container">
+    <div class="header">
+      <button id="resetBtn" class="icon-btn">🔄</button>
+      <button id="refreshBtn" class="icon-btn">↻</button>
+    </div>
+    
+    <div class="player-info">
+      <h2>👋 Hello <span id="playerNameDisplay">Player</span>!</h2>
+      <p>Room ID #<span id="roomIdDisplay">000000</span></p>
+    </div>
+
+    <div class="balance">
+      <h1>₹ <span id="balanceAmount">3000</span></h1>
+      <p>Balance Amount</p>
+    </div>
+
+    <div class="opponent">
+      <p>Opp.Player: <span id="opponentName">Waiting...</span></p>
+    </div>
+
+    <div class="action-buttons">
+      <button id="sendToPlayer" class="btn-primary">Send to Player</button>
+      <button id="sendToBank" class="btn-outline">Send to Bank</button>
+    </div>
+
+    <div class="amount-grid">
+      <button class="amount-btn" data-amount="1">1</button>
+      <button class="amount-btn" data-amount="5">5</button>
+      <button class="amount-btn" data-amount="10">10</button>
+      <button class="amount-btn" data-amount="20">20</button>
+      <button class="amount-btn" data-amount="50">50</button>
+      <button class="amount-btn" data-amount="100">100</button>
+      <button class="amount-btn" data-amount="500">500</button>
+    </div>
+
+    <button id="undoBtn" class="btn-undo">↶ Undo</button>
+    <button id="leaveRoom" class="btn-leave">Leave Room</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
