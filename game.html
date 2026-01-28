@@ -4,62 +4,520 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Game Room - Monopoly Money</title>
-  <link rel="stylesheet" href="style.css">
+  
+  <!-- Google Material Symbols -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #F5F5F5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .game-container {
+      background: white;
+      border-radius: 32px;
+      padding: 30px;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .logo-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .logo-icon .material-symbols-rounded {
+      font-size: 32px;
+      color: white;
+      font-variation-settings: 'FILL' 1, 'wght' 400;
+    }
+
+    .history-icon {
+      width: 48px;
+      height: 48px;
+      background: white;
+      border: 2px solid #E5E7EB;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .history-icon:hover {
+      border-color: #6366F1;
+      background: #F5F7FF;
+    }
+
+    .history-icon .material-symbols-rounded {
+      font-size: 24px;
+      color: #1F2937;
+      font-variation-settings: 'FILL' 0, 'wght' 400;
+    }
+
+    .player-info {
+      margin-bottom: 30px;
+    }
+
+    .greeting {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 8px;
+    }
+
+    .room-id {
+      font-size: 16px;
+      color: #9CA3AF;
+    }
+
+    .balance-section {
+      margin-bottom: 30px;
+    }
+
+    .balance-display {
+      background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+      border: 2px solid #C7D2FE;
+      border-radius: 20px;
+      padding: 40px 20px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .balance-amount {
+      font-size: 64px;
+      font-weight: 700;
+      color: #6366F1;
+      line-height: 1;
+    }
+
+    .balance-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .balance-label {
+      font-size: 16px;
+      color: #6B7280;
+    }
+
+    .undo-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: white;
+      border: 2px solid #E5E7EB;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1F2937;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .undo-btn:hover {
+      border-color: #6366F1;
+      background: #F5F7FF;
+    }
+
+    .undo-btn .material-symbols-rounded {
+      font-size: 20px;
+      font-variation-settings: 'FILL' 0, 'wght' 500;
+    }
+
+    .opponent-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .opponent-section .material-symbols-rounded {
+      font-size: 24px;
+      color: #6366F1;
+      font-variation-settings: 'FILL' 1, 'wght' 400;
+    }
+
+    .opponent-text {
+      font-size: 16px;
+      color: #1F2937;
+    }
+
+    .opponent-name {
+      font-weight: 600;
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .btn-send-player {
+      padding: 18px;
+      background: #6366F1;
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-send-player:hover {
+      background: #5558E3;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-send-bank {
+      padding: 18px;
+      background: #10B981;
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-send-bank:hover {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-leave {
+      width: 100%;
+      padding: 18px;
+      background: #EF4444;
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-leave:hover {
+      background: #DC2626;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0) !important;
+    }
+
+    /* Amount Modal */
+    .amount-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .amount-modal.active {
+      display: flex;
+    }
+
+    .amount-content {
+      background: white;
+      border-radius: 24px;
+      padding: 30px;
+      max-width: 360px;
+      width: 90%;
+    }
+
+    .modal-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .modal-icon.player {
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+    }
+
+    .modal-icon.bank {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    }
+
+    .modal-icon .material-symbols-rounded {
+      font-size: 36px;
+      color: white;
+      font-variation-settings: 'FILL' 1, 'wght' 400;
+    }
+
+    .amount-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1F2937;
+    }
+
+    .amount-display {
+      width: 100%;
+      padding: 20px;
+      background: #F9FAFB;
+      border: 2px solid #E5E7EB;
+      border-radius: 12px;
+      font-size: 32px;
+      font-weight: 600;
+      color: #1F2937;
+      text-align: right;
+      margin-bottom: 16px;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .amount-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .amount-btn {
+      padding: 18px;
+      background: #F3F4F6;
+      border: 2px solid #E5E7EB;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1F2937;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .amount-btn:hover {
+      border-color: #6366F1;
+      background: #EEF2FF;
+      color: #6366F1;
+    }
+
+    .amount-btn:active {
+      transform: scale(0.95);
+    }
+
+    .backspace-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .backspace-btn .material-symbols-rounded {
+      font-size: 22px;
+      font-variation-settings: 'FILL' 0, 'wght' 500;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn-cancel {
+      padding: 14px;
+      background: #F3F4F6;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #6B7280;
+      cursor: pointer;
+    }
+
+    .btn-confirm {
+      padding: 14px;
+      background: #6366F1;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+    }
+
+    .btn-confirm:hover {
+      background: #5558E3;
+    }
+    /* Opponent Status Indicator */
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-left: 8px;
+      background: #10B981;
+    }
+    .status-indicator.offline {
+      background: #EF4444;
+    }
+    /* Notification Toast */
+    .notification-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1F2937;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      z-index: 9999;
+      display: none;
+      animation: slideDown 0.3s ease;
+    }
+    .notification-toast.show {
+      display: block;
+    }
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+  </style>
 </head>
 <body>
+  <!-- Notification Toast -->
+  <div class="notification-toast" id="notificationToast"></div>
   <div class="game-container">
-    <!-- Top corner buttons -->
     <div class="header">
-      <button id="resetBtn" class="icon-btn" title="Reset Balance">🔄</button>
-      <button id="refreshBtn" class="icon-btn" title="Refresh Page">↻</button>
+      <div class="logo-icon">
+        <span class="material-symbols-rounded">cards_stack</span>
+      </div>
+      <div class="history-icon" id="historyBtn" title="History">
+        <span class="material-symbols-rounded">history</span>
+      </div>
     </div>
-    
-    <!-- Player info -->
+
     <div class="player-info">
-      <h2>👋 Hello <span id="playerNameDisplay">Player</span>!</h2>
-      <p class="room-id">Room ID #<span id="roomIdDisplay">000000</span></p>
+      <div class="greeting">👋 Hello <span id="playerNameDisplay">Player</span>!</div>
+      <div class="room-id">Room ID #<span id="roomIdDisplay">000000</span></div>
     </div>
 
-    <!-- Balance display -->
-    <div class="balance">
-      <h1>₹ <span id="balanceAmount">3000</span></h1>
-      <p>Balance Amount</p>
+    <div class="balance-section">
+      <div class="balance-display">
+        <div class="balance-amount" id="balanceAmount">3,000</div>
+      </div>
+      <div class="balance-footer">
+        <div class="balance-label">Balance Amount</div>
+        <button class="undo-btn" id="undoBtn">
+          <span class="material-symbols-rounded">undo</span>
+          Undo
+        </button>
+      </div>
     </div>
 
-    <!-- Opponent info -->
-    <div class="opponent">
-      <p>Opp.Player: <span id="opponentName">Waiting...</span></p>
+    <div class="opponent-section">
+      <span class="material-symbols-rounded">person</span>
+      <div class="opponent-text">
+        Opp.Player: <span class="opponent-name" id="opponentName">Waiting...</span>
+        <span class="status-indicator" id="opponentStatus"></span>
+      </div>
     </div>
 
-    <!-- Action buttons -->
     <div class="action-buttons">
-      <button id="sendToPlayer" class="btn-primary">Send to Player</button>
-      <button id="sendToBank" class="btn-outline">Send to Bank</button>
+      <button class="btn-send-player" id="sendToPlayer">Send to Player</button>
+      <button class="btn-send-bank" id="sendToBank">Send to Bank</button>
     </div>
 
-    <!-- Amount selection grid -->
-    <div class="amount-grid">
-      <button class="amount-btn" data-amount="1">1</button>
-      <button class="amount-btn" data-amount="5">5</button>
-      <button class="amount-btn" data-amount="10">10</button>
-      <button class="amount-btn" data-amount="20">20</button>
-      <button class="amount-btn" data-amount="50">50</button>
-      <button class="amount-btn" data-amount="100">100</button>
-      <button class="amount-btn" data-amount="500">500</button>
-    </div>
-
-    <!-- Undo button -->
-    <button id="undoBtn" class="btn-undo">↶ Undo</button>
-
-    <!-- Leave room button -->
-    <button id="leaveRoom" class="btn-leave">Leave Room</button>
+    <button class="btn-leave" id="leaveRoom">Leave Room</button>
   </div>
 
-    <!-- Firebase SDK -->
+  <!-- Amount Selection Modal -->
+  <div class="amount-modal" id="amountModal">
+    <div class="amount-content">
+      <div class="modal-header">
+        <div class="modal-icon" id="modalIcon">
+          <span class="material-symbols-rounded" id="modalIconSymbol">person</span>
+        </div>
+        <div class="amount-title" id="modalTitle">Send to Player</div>
+      </div>
+      
+      <div class="amount-display" id="amountDisplay">0</div>
+      
+      <div class="amount-grid">
+        <button class="amount-btn" data-amount="1">1</button>
+        <button class="amount-btn" data-amount="5">5</button>
+        <button class="amount-btn" data-amount="10">10</button>
+        <button class="amount-btn" data-amount="20">20</button>
+        <button class="amount-btn" data-amount="50">50</button>
+        <button class="amount-btn" data-amount="100">100</button>
+        <button class="amount-btn" data-amount="200">200</button>
+        <button class="amount-btn" data-amount="500">500</button>
+        <button class="amount-btn backspace-btn" id="backspaceBtn">
+          <span class="material-symbols-rounded">backspace</span>
+        </button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="cancelAmount">Cancel</button>
+        <button class="btn-confirm" id="confirmAmount">Send</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   
-  <!-- Initialize Firebase INLINE -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDrPA---Ak_l9jqwHouWiC2byZH6EdR9Ts",
@@ -74,11 +532,267 @@
 
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
-
     console.log("✅ Firebase initialized!");
   </script>
   
-  <!-- Your App Logic -->
-  <script src="app.js"></script>
+  <script>
+    const roomId = localStorage.getItem('roomId');
+    const playerName = localStorage.getItem('playerName');
+    const playerRole = localStorage.getItem('playerRole');
+    const opponentRole = playerRole === 'player1' ? 'player2' : 'player1';
+
+    let selectedAmount = 0;
+    let displayAmount = 0;
+    let lastTransaction = null;
+    let currentAction = null;
+    let opponentListener = null;
+
+    if (!roomId || !playerName || !playerRole) {
+      window.location.href = 'room.html';
+    }
+    document.getElementById('playerNameDisplay').textContent = playerName;
+    document.getElementById('roomIdDisplay').textContent = roomId;
+    // Mark self as active when page loads and verify room exists
+    database.ref('rooms/' + roomId).once('value').then(snapshot => {
+      if (!snapshot.exists()) {
+        alert('Room no longer exists!');
+        localStorage.clear();
+        window.location.href = 'room.html';
+        return;
+      }
+      // Mark self as active
+      database.ref('rooms/' + roomId + '/' + playerRole + '/active').set(true);
+    });
+    // Show notification helper
+    function showNotification(message) {
+      const toast = document.getElementById('notificationToast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    function formatNumber(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function updateModalDisplay() {
+      document.getElementById('amountDisplay').textContent = formatNumber(displayAmount);
+    }
+
+    database.ref('rooms/' + roomId).on('value', snapshot => {
+      const room = snapshot.val();
+      if (room && room[playerRole]) {
+        const balance = room[playerRole].balance;
+        document.getElementById('balanceAmount').textContent = formatNumber(balance);
+        if (room[opponentRole]) {
+          const opponentName = room[opponentRole].name;
+          const isActive = room[opponentRole].active || false;
+          document.getElementById('opponentName').textContent = opponentName;
+          const statusIndicator = document.getElementById('opponentStatus');
+          if (isActive) {
+            statusIndicator.classList.remove('offline');
+            statusIndicator.style.display = 'inline-block';
+          } else {
+            statusIndicator.classList.add('offline');
+            statusIndicator.style.display = 'inline-block';
+          }
+        } else {
+          document.getElementById('opponentName').textContent = 'Waiting...';
+          document.getElementById('opponentStatus').style.display = 'none';
+        }
+      }
+    });
+    // Track initial load to avoid showing notification on page load
+    let isInitialLoad = true;
+    // Listen for opponent leave/rejoin events
+    database.ref('rooms/' + roomId + '/' + opponentRole + '/active').on('value', snapshot => {
+      if (snapshot.exists()) {
+        const isActive = snapshot.val();
+        // Skip notification on initial load
+        if (isInitialLoad) {
+          isInitialLoad = false;
+          return;
+        }
+        database.ref('rooms/' + roomId + '/' + opponentRole + '/name').once('value', nameSnap => {
+          const opponentName = nameSnap.val();
+          if (opponentName) {
+            if (isActive) {
+              showNotification(opponentName + ' has joined/rejoined the room');
+            } else {
+              showNotification(opponentName + ' has left the room');
+            }
+          }
+        });
+      }
+    });
+
+    const modal = document.getElementById('amountModal');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalIconSymbol = document.getElementById('modalIconSymbol');
+    const modalTitle = document.getElementById('modalTitle');
+    const amountButtons = document.querySelectorAll('.amount-btn');
+
+    document.getElementById('sendToPlayer').addEventListener('click', () => {
+      currentAction = 'player';
+      displayAmount = 0;
+      updateModalDisplay();
+      modalIcon.className = 'modal-icon player';
+      modalIconSymbol.textContent = 'person';
+      modalTitle.textContent = 'Send to Player';
+      modal.classList.add('active');
+    });
+
+    document.getElementById('sendToBank').addEventListener('click', () => {
+      currentAction = 'bank';
+      displayAmount = 0;
+      updateModalDisplay();
+      modalIcon.className = 'modal-icon bank';
+      modalIconSymbol.textContent = 'account_balance';
+      modalTitle.textContent = 'Send to Bank';
+      modal.classList.add('active');
+    });
+
+    document.getElementById('cancelAmount').addEventListener('click', () => {
+      modal.classList.remove('active');
+      displayAmount = 0;
+      selectedAmount = 0;
+    });
+
+    amountButtons.forEach(btn => {
+      if (btn.dataset.amount) {
+        btn.addEventListener('click', () => {
+          const amount = parseInt(btn.dataset.amount);
+          displayAmount += amount;
+          updateModalDisplay();
+        });
+      }
+    });
+
+    document.getElementById('backspaceBtn').addEventListener('click', () => {
+      if (displayAmount > 0) {
+        const str = displayAmount.toString();
+        if (str.length > 1) {
+          displayAmount = parseInt(str.slice(0, -1));
+        } else {
+          displayAmount = 0;
+        }
+        updateModalDisplay();
+      }
+    });
+
+    document.getElementById('confirmAmount').addEventListener('click', () => {
+      if (displayAmount === 0) {
+        alert('Please enter an amount!');
+        return;
+      }
+      selectedAmount = displayAmount;
+      modal.classList.remove('active');
+      if (currentAction === 'bank') {
+        sendToBank();
+      } else if (currentAction === 'player') {
+        sendToPlayer();
+      }
+      displayAmount = 0;
+    });
+
+    function sendToBank() {
+      database.ref('rooms/' + roomId + '/' + playerRole + '/balance').once('value')
+        .then(snap => {
+          const currentBalance = snap.val();
+          const newBalance = currentBalance - selectedAmount;
+          if (newBalance < 0) {
+            alert('Insufficient balance!');
+            return;
+          }
+          lastTransaction = { type: 'bank', amount: selectedAmount, oldBalance: currentBalance };
+          database.ref('rooms/' + roomId + '/' + playerRole + '/balance').set(newBalance);
+          selectedAmount = 0;
+        });
+    }
+
+    function sendToPlayer() {
+      database.ref('rooms/' + roomId).once('value')
+        .then(snapshot => {
+          const room = snapshot.val();
+          if (!room[opponentRole]) {
+            alert('Waiting for opponent to join!');
+            return;
+          }
+          const currentBalance = room[playerRole].balance;
+          const opponentBalance = room[opponentRole].balance;
+          if (currentBalance < selectedAmount) {
+            alert('Insufficient balance!');
+            return;
+          }
+          lastTransaction = { 
+            type: 'player', 
+            amount: selectedAmount, 
+            oldBalance: currentBalance, 
+            oldOpponentBalance: opponentBalance 
+          };
+          database.ref('rooms/' + roomId + '/' + playerRole + '/balance').set(currentBalance - selectedAmount);
+          database.ref('rooms/' + roomId + '/' + opponentRole + '/balance').set(opponentBalance + selectedAmount);
+          selectedAmount = 0;
+        });
+    }
+
+    document.getElementById('undoBtn').addEventListener('click', () => {
+      if (!lastTransaction) {
+        alert('No transaction to undo!');
+        return;
+      }
+      database.ref('rooms/' + roomId + '/' + playerRole + '/balance').set(lastTransaction.oldBalance);
+      if (lastTransaction.type === 'player') {
+        database.ref('rooms/' + roomId + '/' + opponentRole + '/balance').set(lastTransaction.oldOpponentBalance);
+      }
+      lastTransaction = null;
+    });
+
+    document.getElementById('historyBtn').addEventListener('click', () => {
+      if (confirm('Reset all balances to ₹3,000? This will reset both players.')) {
+        database.ref('rooms/' + roomId + '/' + playerRole + '/balance').set(3000);
+        database.ref('rooms/' + roomId + '/' + opponentRole + '/balance').set(3000);
+        lastTransaction = null;
+        showNotification('All balances reset to ₹3,000');
+      }
+    });
+
+    document.getElementById('leaveRoom').addEventListener('click', () => {
+      if (confirm('Leave this room? Data will be saved for 24 hours.')) {
+        // Mark player as inactive (not active)
+        database.ref('rooms/' + roomId + '/' + playerRole + '/active').set(false)
+          .then(() => {
+            localStorage.clear();
+            window.location.href = 'room.html';
+          });
+      }
+    });
+    // Mark player as inactive when they close the tab/browser
+    window.addEventListener('beforeunload', () => {
+      database.ref('rooms/' + roomId + '/' + playerRole + '/active').set(false);
+    });
+  </script>
+  <script>
+    // Auto-cleanup rooms older than 24 hours
+    const cleanupOldRooms = () => {
+      database.ref('rooms').once('value', snapshot => {
+        const rooms = snapshot.val();
+        if (rooms) {
+          const now = Date.now();
+          const twentyFourHours = 24 * 60 * 60 * 1000;
+          Object.keys(rooms).forEach(roomId => {
+            const room = rooms[roomId];
+            if (room.createdAt && (now - room.createdAt) > twentyFourHours) {
+              database.ref('rooms/' + roomId).remove();
+            }
+          });
+        }
+      });
+    };
+    // Run cleanup on load
+    cleanupOldRooms();
+  </script>
 </body>
 </html>
