@@ -3,47 +3,159 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monopoly Money App</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Monopoly Gameplay</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #000;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .splash-container {
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      animation: fadeIn 0.8s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo-container {
+      margin-bottom: 40px;
+    }
+
+    .logo-circle {
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(135deg, #4A4A6A 0%, #2D2D4A 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+      box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
+    }
+
+    .logo-icon {
+      font-size: 80px;
+    }
+
+    /* Custom money card icon using CSS */
+    .money-icon {
+      width: 100px;
+      height: 70px;
+      background: linear-gradient(135deg, #818CF8 0%, #6366F1 100%);
+      border-radius: 12px;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .money-icon::before {
+      content: '';
+      position: absolute;
+      width: 40px;
+      height: 4px;
+      background: #2D2D4A;
+      top: 30px;
+      left: 30px;
+      border-radius: 2px;
+    }
+
+    .money-icon::after {
+      content: '';
+      position: absolute;
+      width: 40px;
+      height: 4px;
+      background: #2D2D4A;
+      top: 40px;
+      left: 30px;
+      border-radius: 2px;
+    }
+
+    .money-icon-shadow {
+      position: absolute;
+      width: 90px;
+      height: 65px;
+      background: rgba(99, 102, 241, 0.3);
+      border-radius: 12px;
+      top: 10px;
+      left: -10px;
+      z-index: -1;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 60px;
+      text-transform: uppercase;
+    }
+
+    .get-started-btn {
+      width: 100%;
+      padding: 18px;
+      background: white;
+      color: black;
+      border: none;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 30px;
+    }
+
+    .get-started-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+    }
+
+    .get-started-btn:active {
+      transform: translateY(0);
+    }
+
+    .username {
+      color: #9CA3AF;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Enter your name and Create or Join Room</h1>
-    
-    <input type="text" id="playerName" placeholder="Name" autocomplete="off">
-    
-    <button id="createRoom" class="btn-primary">Create Room</button>
-    <button id="joinRoom" class="btn-secondary">Join Room</button>
+  <div class="splash-container">
+    <div class="logo-container">
+      <div class="logo-circle">
+        <div style="position: relative;">
+          <div class="money-icon-shadow"></div>
+          <div class="money-icon"></div>
+        </div>
+      </div>
+      <h1>MONOPOLY GAMEPLAY</h1>
+    </div>
+
+    <button class="get-started-btn" onclick="window.location.href='room.html'">Get Started</button>
+
+    <p class="username">@itsvivek.library</p>
   </div>
-
-   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  
-  <!-- Initialize Firebase INLINE -->
-  <script>
-    console.log("🔥 Initializing Firebase...");
-    
-    const firebaseConfig = {
-      apiKey: "AIzaSyDrPA---Ak_l9jqwHouWiC2byZH6EdR9Ts",
-  authDomain: "monopolymoneyapp.firebaseapp.com",
-  databaseURL: "https://monopolymoneyapp-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "monopolymoneyapp",
-  storageBucket: "monopolymoneyapp.firebasestorage.app",
-  messagingSenderId: "734008146391",
-  appId: "1:734008146391:web:8ebbf21a9c324b25587392",
-  measurementId: "G-3377SYGJYX"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    console.log("✅ Firebase initialized!");
-    console.log("✅ Database:", database);
-  </script>
-  
-  <!-- Your App Logic -->
-  <script src="app.js"></script>
 </body>
 </html>

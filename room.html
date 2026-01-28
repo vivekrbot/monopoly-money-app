@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monopoly Money App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="title-container">
+    <h1>Monopoly Money App</h1>
+  </div>
+    <h1>Enter your name and Create or Join Room</h1>
+    
+    <input type="text" id="playerName" placeholder="Name" autocomplete="off">
+    
+    <button id="createRoom" class="btn-primary">Create Room</button>
+    <button id="joinRoom" class="btn-secondary">Join Room</button>
+  </div>
+
+   <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+  <!-- Initialize Firebase INLINE -->
+  <script>
+    console.log("🔥 Initializing Firebase...");
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrPA---Ak_l9jqwHouWiC2byZH6EdR9Ts",
+  authDomain: "monopolymoneyapp.firebaseapp.com",
+  databaseURL: "https://monopolymoneyapp-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "monopolymoneyapp",
+  storageBucket: "monopolymoneyapp.firebasestorage.app",
+  messagingSenderId: "734008146391",
+  appId: "1:734008146391:web:8ebbf21a9c324b25587392",
+  measurementId: "G-3377SYGJYX"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    console.log("✅ Firebase initialized!");
+    console.log("✅ Database:", database);
+  </script>
+  
+  <!-- Your App Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
