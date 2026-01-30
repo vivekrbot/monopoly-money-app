@@ -101,10 +101,10 @@
       color: #9CA3AF;
     }
 
-    .btn-create {
+    .btn-create-banker {
       width: 100%;
       padding: 18px;
-      background: #6366F1;
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
       color: white;
       border: none;
       border-radius: 16px;
@@ -113,15 +113,23 @@
       cursor: pointer;
       transition: all 0.3s ease;
       margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
-    .btn-create:hover {
-      background: #5558E3;
+    .btn-create-banker .material-symbols-rounded {
+      font-size: 24px;
+      font-variation-settings: 'FILL' 1, 'wght' 600;
+    }
+
+    .btn-create-banker:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
     }
 
-    .btn-create:active {
+    .btn-create-banker:active {
       transform: translateY(0);
     }
 
@@ -164,8 +172,11 @@
       <input type="text" id="playerName" placeholder="Name" autocomplete="off">
     </div>
 
-    <button id="createRoom" class="btn-create">Create Room</button>
-    <button id="joinRoom" class="btn-join">Join Room</button>
+    <button id="createBankerRoom" class="btn-create-banker">
+      <span class="material-symbols-rounded">account_balance</span>
+      Create Room as Banker
+    </button>
+    <button id="joinRoom" class="btn-join">Join Room as Player</button>
   </div>
 
   <!-- Firebase SDK -->
@@ -193,58 +204,86 @@
   
   <!-- App Logic -->
   <script>
-    // Create new room
-    document.getElementById('createRoom').addEventListener('click', () => {
-      const playerName = document.getElementById('playerName').value.trim();
-      if (!playerName) {
+    // Create new room as Banker
+    document.getElementById('createBankerRoom').addEventListener('click', () => {
+      const bankerName = document.getElementById('playerName').value.trim();
+      if (!bankerName) {
         alert('Please enter your name!');
         return;
       }
+
       const roomId = Math.floor(100000 + Math.random() * 900000).toString();
+      
       database.ref('rooms/' + roomId).set({
-        player1: {
-          name: playerName,
-          balance: 3000,
+        banker: {
+          name: bankerName,
           active: true
         },
         createdAt: Date.now()
       }).then(() => {
         localStorage.setItem('roomId', roomId);
-        localStorage.setItem('playerName', playerName);
-        localStorage.setItem('playerRole', 'player1');
-        window.location.href = 'game.html';
+        localStorage.setItem('bankerName', bankerName);
+        localStorage.setItem('userRole', 'banker');
+        
+        window.location.href = 'banker.html';
       });
     });
-    // Join existing room
+
+    // Join existing room as Player
     document.getElementById('joinRoom').addEventListener('click', () => {
       const playerName = document.getElementById('playerName').value.trim();
       if (!playerName) {
         alert('Please enter your name!');
         return;
       }
+
       const roomId = prompt('Enter Room ID:');
       if (!roomId) return;
+
       database.ref('rooms/' + roomId).once('value')
         .then(snapshot => {
           if (!snapshot.exists()) {
             alert('Room not found!');
             return;
           }
+
           const room = snapshot.val();
-          if (room.player2) {
-            alert('Room is full!');
+          
+          // Check if room has a banker
+          if (!room.banker) {
+            alert('This room does not have a banker!');
             return;
           }
-          database.ref('rooms/' + roomId + '/player2').set({
-            name: playerName,
-            balance: 3000,
-            active: true
-          }).then(() => {
-            localStorage.setItem('roomId', roomId);
-            localStorage.setItem('playerName', playerName);
-            localStorage.setItem('playerRole', 'player2');
-            window.location.href = 'game.html';
-          });
+
+          // Check if player1 slot is available
+          if (!room.player1) {
+            database.ref('rooms/' + roomId + '/player1').set({
+              name: playerName,
+              balance: 3000,
+              active: true
+            }).then(() => {
+              localStorage.setItem('roomId', roomId);
+              localStorage.setItem('playerName', playerName);
+              localStorage.setItem('playerRole', 'player1');
+              window.location.href = 'game.html';
+            });
+          }
+          // Check if player2 slot is available
+          else if (!room.player2) {
+            database.ref('rooms/' + roomId + '/player2').set({
+              name: playerName,
+              balance: 3000,
+              active: true
+            }).then(() => {
+              localStorage.setItem('roomId', roomId);
+              localStorage.setItem('playerName', playerName);
+              localStorage.setItem('playerRole', 'player2');
+              window.location.href = 'game.html';
+            });
+          }
+          else {
+            alert('Room is full!');
+          }
         });
     });
   </script>
