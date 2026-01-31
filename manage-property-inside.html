@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Property - Monopoly Money</title>
+  
+  <!-- Google Material Symbols -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #F5F5F5;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 30px;
+    }
+
+    .back-btn {
+      width: 48px;
+      height: 48px;
+      background: white;
+      border: none;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: #F9FAFB;
+      transform: translateX(-4px);
+    }
+
+    .back-btn .material-symbols-rounded {
+      font-size: 24px;
+      color: #1F2937;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 16px;
+      color: #9CA3AF;
+    }
+
+    .property-card {
+      background: #FDE047;
+      border: 2px solid #1F2937;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .property-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 20px;
+    }
+
+    .property-icon {
+      font-size: 32px;
+      color: #1F2937;
+    }
+
+    .property-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .property-content {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .detail-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1F2937;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      font-size: 16px;
+      color: #1F2937;
+    }
+
+    .detail-row.highlight {
+      color: #EF4444;
+      font-weight: 600;
+    }
+
+    .detail-label {
+      color: #6B7280;
+    }
+
+    .detail-value {
+      font-weight: 600;
+    }
+
+    .divider {
+      height: 1px;
+      background: #E5E7EB;
+      margin: 16px 0;
+    }
+
+    .build-section {
+      margin-top: 24px;
+    }
+
+    .counter-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+      background: white;
+      border: 2px solid #1F2937;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .counter-btn {
+      width: 48px;
+      height: 48px;
+      background: #1F2937;
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .counter-btn:hover:not(:disabled) {
+      background: #374151;
+      transform: scale(1.1);
+    }
+
+    .counter-btn:disabled {
+      background: #D1D5DB;
+      cursor: not-allowed;
+    }
+
+    .counter-btn .material-symbols-rounded {
+      font-size: 24px;
+      color: white;
+    }
+
+    .counter-value {
+      font-size: 48px;
+      font-weight: 700;
+      color: #1F2937;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .build-btn {
+      background: #10B981;
+      border: none;
+      border-radius: 12px;
+      padding: 20px;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+      margin-bottom: 16px;
+    }
+
+    .build-btn:hover {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .build-btn:disabled {
+      background: #D1D5DB;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .sell-btn {
+      background: #FDE047;
+      border: 2px solid #1F2937;
+      border-radius: 12px;
+      padding: 18px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #1F2937;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sell-btn:hover {
+      background: #FCD34D;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .mortgage-btn {
+      background: #1F2937;
+      border: none;
+      border-radius: 12px;
+      padding: 18px;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .mortgage-btn:hover {
+      background: #374151;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .pay-mortgaged-btn {
+      background: #9CA3AF;
+      border: none;
+      border-radius: 12px;
+      padding: 20px;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .pay-mortgaged-btn:hover {
+      background: #6B7280;
+      transform: translateY(-2px);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1F2937;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 2000;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .toast.show {
+      display: block;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <button class="back-btn" onclick="window.history.back()">
+        <span class="material-symbols-rounded">arrow_back</span>
+      </button>
+      <h1 class="page-title" id="pageTitle">PICCADILLY</h1>
+      <p class="page-subtitle">Manage your Properties</p>
+    </div>
+
+    <div class="property-card" id="propertyCard">
+      <div class="property-header">
+        <span class="material-symbols-rounded property-icon" id="propertyIcon">apartment</span>
+        <span class="property-name" id="propertyName">PICCADILLY</span>
+      </div>
+
+      <div class="property-content">
+        <div class="detail-title">TITLE DEED</div>
+        
+        <div id="propertyDetails">
+          <!-- Property details will be inserted here -->
+        </div>
+
+        <!-- Build Section (hidden for stations/utilities) -->
+        <div class="build-section" id="buildSection">
+          <div class="counter-container">
+            <button class="counter-btn" id="decreaseBtn" onclick="decreaseCounter()">
+              <span class="material-symbols-rounded">remove</span>
+            </button>
+            <div class="counter-value" id="counterValue">1</div>
+            <button class="counter-btn" id="increaseBtn" onclick="increaseCounter()">
+              <span class="material-symbols-rounded">add</span>
+            </button>
+          </div>
+
+          <button class="build-btn" id="buildBtn" onclick="buildHouses()">Build</button>
+
+          <div class="action-buttons" id="actionButtons">
+            <button class="sell-btn" onclick="sellToBank()">Sell</button>
+            <button class="mortgage-btn" onclick="mortgageProperty()">Mortgage</button>
+          </div>
+
+          <button class="pay-mortgaged-btn hidden" id="payMortgagedBtn" onclick="payMortgage()">Pay Mortgaged</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrPA---Ak_l9jqwHouWiC2byZH6EdR9Ts",
+  authDomain: "monopolymoneyapp.firebaseapp.com",
+  databaseURL: "https://monopolymoneyapp-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "monopolymoneyapp",
+  storageBucket: "monopolymoneyapp.firebasestorage.app",
+  messagingSenderId: "734008146391",
+  appId: "1:734008146391:web:8ebbf21a9c324b25587392",
+  measurementId: "G-3377SYGJYX"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+  </script>
+  
+ <script>
+    // Replace the entire <script> section (after Firebase init) with this:
+
+// const HOUSE_PRICE = 150; // Default price per house
+  const MAX_HOUSES = 5;
+
+let roomId = new URLSearchParams(window.location.search).get('room');
+let currentPlayer = new URLSearchParams(window.location.search).get('player');
+let propertyId = new URLSearchParams(window.location.search).get('property');
+
+let propertyData = null;
+let propertyIndex = -1;
+let houseCounter = 0;
+let currentHouseCount = 0; // Track existing houses
+let isMortgaged = false;
+
+if (!roomId || !currentPlayer || !propertyId) {
+  window.location.href = 'room.html';
+}
+
+function formatCurrency(amount) {
+  return `₹ ${amount}`;
+}
+
+function formatNumber(num) {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+function increaseCounter() {
+  if (houseCounter < MAX_HOUSES) {
+    houseCounter++;
+    updateCounter();
+  }
+}
+
+function decreaseCounter() {
+  if (houseCounter > currentHouseCount) {
+    houseCounter--;
+    updateCounter();
+  }
+}
+
+function updateCounter() {
+  document.getElementById('counterValue').textContent = houseCounter;
+  document.getElementById('decreaseBtn').disabled = houseCounter <= currentHouseCount;
+  document.getElementById('increaseBtn').disabled = houseCounter >= MAX_HOUSES;
+}
+
+async function buildHouses() {
+  const housesToBuild = houseCounter - currentHouseCount;
+  
+  if (housesToBuild <= 0) {
+    showToast('No new houses to build');
+    return;
+  }
+  
+  const HOUSE_PRICE = propertyData.costPerHouse || 150;
+  const totalCost = housesToBuild * HOUSE_PRICE;
+  
+  // Get player balance
+  const playerRef = database.ref(`rooms/${roomId}/${currentPlayer}`);
+  const playerSnapshot = await playerRef.once('value');
+  const playerData = playerSnapshot.val();
+  
+  if (!playerData) {
+    showToast('Player data not found');
+    return;
+  }
+  
+  const currentBalance = playerData.balance || 3000;
+  
+  if (currentBalance < totalCost) {
+    showToast(`Insufficient balance. Need ₹${formatNumber(totalCost)}, you have ₹${formatNumber(currentBalance)}`);
+    return;
+  }
+  
+  // Deduct cost and update property with house count
+  const newBalance = currentBalance - totalCost;
+  
+  // Get current properties array
+  const properties = playerData.properties || [];
+  if (propertyIndex >= 0 && propertyIndex < properties.length) {
+    properties[propertyIndex].houses = houseCounter;
+    
+    await playerRef.update({
+      balance: newBalance,
+      properties: properties
+    });
+    
+    currentHouseCount = houseCounter;
+    showToast(`Built ${housesToBuild} house${housesToBuild > 1 ? 's' : ''} for ₹${formatNumber(totalCost)}`);
+    updateCounter();
+  }
+}
+
+async function sellToBank() {
+  const HOUSE_PRICE = propertyData.costPerHouse || 150;
+  const PROPERTY_VALUE = propertyData.propertyValue || 400;
+  
+  const houseBuildCost = (currentHouseCount || 0) * HOUSE_PRICE;
+  const totalRefund = PROPERTY_VALUE + houseBuildCost;
+  
+  if (!confirm(`Are you sure you want to sell ${propertyData.name} back to the bank for ₹${formatNumber(totalRefund)}?\n\nProperty: ₹${formatNumber(PROPERTY_VALUE)}${houseBuildCost > 0 ? `\nHouses: ₹${formatNumber(houseBuildCost)}` : ''}`)) {
+    return;
+  }
+  
+  const playerRef = database.ref(`rooms/${roomId}/${currentPlayer}`);
+  const playerSnapshot = await playerRef.once('value');
+  const playerData = playerSnapshot.val();
+  
+  if (!playerData) return;
+  
+  // Remove property from player's array
+  let properties = playerData.properties || [];
+  properties = properties.filter((p, idx) => idx !== propertyIndex);
+  
+  // Add property value + house build costs back to player balance
+  const newBalance = (playerData.balance || 3000) + totalRefund;
+  
+  await playerRef.update({
+    balance: newBalance,
+    properties: properties
+  });
+  
+  showToast(`Property sold for ₹${formatNumber(totalRefund)}`);
+  
+  // Navigate back after short delay
+  setTimeout(() => {
+    window.history.back();
+  }, 1000);
+}
+
+function mortgageProperty() {
+  if (!confirm(`Mortgage ${propertyData.name} for ₹100?`)) {
+    return;
+  }
+  
+  // Set mortgaged state
+  isMortgaged = true;
+  updateMortgageUI();
+  
+  // TODO: Add mortgage value to player balance and save to Firebase
+  showToast('Property mortgaged for ₹100');
+}
+
+function payMortgage() {
+  showToast('Pay Mortgage feature coming soon');
+  // Placeholder for future implementation
+}
+
+function updateMortgageUI() {
+  const actionButtons = document.getElementById('actionButtons');
+  const payMortgagedBtn = document.getElementById('payMortgagedBtn');
+  const buildBtn = document.getElementById('buildBtn');
+  const counterContainer = document.querySelector('.counter-container');
+  
+  if (isMortgaged) {
+    actionButtons.classList.add('hidden');
+    buildBtn.classList.add('hidden');
+    counterContainer.classList.add('hidden');
+    payMortgagedBtn.classList.remove('hidden');
+  } else {
+    actionButtons.classList.remove('hidden');
+    buildBtn.classList.remove('hidden');
+    counterContainer.classList.remove('hidden');
+    payMortgagedBtn.classList.add('hidden');
+  }
+}
+
+function getPropertyIcon(property) {
+  if (property.isStation) return 'train';
+  if (property.isUtility) return property.name.includes('ELECTRIC') ? 'bolt' : 'water_drop';
+  return 'apartment';
+}
+
+function renderPropertyDetails(property) {
+  let detailsHTML = '';
+  
+  if (property.isStation) {
+    detailsHTML = `
+      <div class="detail-row">
+        <span class="detail-label">Rent</span>
+        <span class="detail-value">${formatCurrency(property.rentSiteOnly)}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Rent - with 2 Stations</span>
+        <span class="detail-value">${formatCurrency(property.rent2Stations)}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Rent - with 3 Stations</span>
+        <span class="detail-value">${formatCurrency(property.rent3Stations)}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Rent - with 4 Stations</span>
+        <span class="detail-value">${formatCurrency(property.rent4Stations)}</span>
+      </div>
+      <div class="divider"></div>
+      <div class="detail-row highlight">
+        <span class="detail-label">Mortgage Value</span>
+        <span class="detail-value">${formatCurrency(property.mortgageValue)}</span>
+      </div>
+    `;
+  } else if (property.isUtility) {
+    detailsHTML = `
+      <div style="margin-bottom: 12px; font-size: 14px; line-height: 1.5; color: #6B7280;">
+        ${property.description}
+      </div>
+      <div style="margin-bottom: 12px; font-size: 14px; line-height: 1.5; color: #6B7280;">
+        ${property.description2}
+      </div>
+      <div class="divider"></div>
+      <div class="detail-row highlight">
+        <span class="detail-label">Mortgage Value</span>
+        <span class="detail-value">${formatCurrency(property.mortgageValue)}</span>
+      </div>
+    `;
+  } else {
+    detailsHTML = `
+      <div class="detail-row">
+        <span class="detail-label">Rent - Site Only</span>
+        <span class="detail-value">${formatCurrency(property.rentSiteOnly)}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Rent - with 1 House</span>
+        <span class="detail-value">${formatCurrency(property.rent1House)}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Rent - with 2 House</span>
+        <span class="detail-value">${formatCurrency(property.rent2House)}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Rent - with 3 House</span>
+        <span class="detail-value">${formatCurrency(property.rent3House)}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Rent - with 4 House</span>
+        <span class="detail-value">${formatCurrency(property.rent4House)}</span>
+      </div>
+      <div class="detail-row highlight">
+        <span class="detail-label">Rent - with Hotel</span>
+        <span class="detail-value">${formatCurrency(property.rentHotel)}</span>
+      </div>
+      <div class="divider"></div>
+      <div class="detail-row">
+        <span class="detail-label">Cost of Houses</span>
+        <span class="detail-value">${formatCurrency(property.costPerHouse)}/Per</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Cost of Hotel</span>
+        <span class="detail-value">${property.hotelCost}</span>
+      </div>
+      <div class="detail-row highlight">
+        <span class="detail-label">Mortgage Value</span>
+        <span class="detail-value">${formatCurrency(property.mortgageValue)}</span>
+      </div>
+    `;
+  }
+  
+  document.getElementById('propertyDetails').innerHTML = detailsHTML;
+  
+  // In renderPropertyDetails function, add this instead:
+if (property.isStation || property.isUtility) {
+  // Hide counter and build button for stations/utilities, but keep sell/mortgage actions
+  document.querySelector('.counter-container').style.display = 'none';
+  document.getElementById('buildBtn').style.display = 'none';
+}
+}
+
+async function loadProperty() {
+  const propertiesRef = database.ref(`rooms/${roomId}/${currentPlayer}/properties`);
+  const snapshot = await propertiesRef.once('value');
+  const properties = snapshot.val();
+  
+  if (!properties || !Array.isArray(properties)) {
+    showToast('Property not found');
+    setTimeout(() => window.history.back(), 1500);
+    return;
+  }
+  
+  // Find property by ID
+  propertyIndex = properties.findIndex(p => p.id === propertyId);
+  
+  if (propertyIndex === -1) {
+    showToast('Property not found');
+    setTimeout(() => window.history.back(), 1500);
+    return;
+  }
+  
+  propertyData = properties[propertyIndex];
+  
+  // Initialize house count from saved data
+  currentHouseCount = propertyData.houses || 0;
+  houseCounter = currentHouseCount;
+  
+  // Update UI
+  document.getElementById('pageTitle').textContent = propertyData.name;
+  document.getElementById('propertyName').textContent = propertyData.name;
+  document.getElementById('propertyIcon').textContent = getPropertyIcon(propertyData);
+  document.getElementById('propertyCard').style.background = propertyData.color;
+  document.getElementById('propertyCard').style.borderColor = 
+    (propertyData.color === '#FFFFFF' || propertyData.color === '#F5F5F5') ? '#1F2937' : propertyData.color;
+  
+  renderPropertyDetails(propertyData);
+  updateCounter();
+  updateMortgageUI();
+}
+
+async function mortgageProperty() {
+  const mortgageValue = propertyData.mortgageValue || 100;
+  
+  if (!confirm(`Mortgage ${propertyData.name} for ₹${formatNumber(mortgageValue)}?`)) {
+    return;
+  }
+  
+  const playerRef = database.ref(`rooms/${roomId}/${currentPlayer}`);
+  const playerSnapshot = await playerRef.once('value');
+  const playerData = playerSnapshot.val();
+  
+  if (!playerData) return;
+  
+  // Get current properties array
+  let properties = playerData.properties || [];
+  if (propertyIndex >= 0 && propertyIndex < properties.length) {
+    // Set mortgaged flag
+    properties[propertyIndex].isMortgaged = true;
+    
+    // Add mortgage value to balance
+    const newBalance = (playerData.balance || 3000) + mortgageValue;
+    
+    await playerRef.update({
+      balance: newBalance,
+      properties: properties
+    });
+    
+    isMortgaged = true;
+    propertyData.isMortgaged = true;
+    updateMortgageUI();
+    
+    showToast(`Property mortgaged for ₹${formatNumber(mortgageValue)}`);
+  }
+}
+
+
+async function payMortgage() {
+  const mortgageValue = propertyData.mortgageValue || 100;
+  const paymentAmount = Math.round(mortgageValue * 1.1); // 10% interest
+  
+  if (!confirm(`Pay ₹${formatNumber(paymentAmount)} to unmortgage ${propertyData.name}?\n(Includes 10% interest)`)) {
+    return;
+  }
+  
+  const playerRef = database.ref(`rooms/${roomId}/${currentPlayer}`);
+  const playerSnapshot = await playerRef.once('value');
+  const playerData = playerSnapshot.val();
+  
+  if (!playerData) return;
+  
+  const currentBalance = playerData.balance || 3000;
+  
+  if (currentBalance < paymentAmount) {
+    showToast(`Insufficient balance. Need ₹${formatNumber(paymentAmount)}, you have ₹${formatNumber(currentBalance)}`);
+    return;
+  }
+  
+  // Get current properties array
+  let properties = playerData.properties || [];
+  if (propertyIndex >= 0 && propertyIndex < properties.length) {
+    // Remove mortgaged flag
+    properties[propertyIndex].isMortgaged = false;
+    
+    // Deduct payment from balance
+    const newBalance = currentBalance - paymentAmount;
+    
+    await playerRef.update({
+      balance: newBalance,
+      properties: properties
+    });
+    
+    isMortgaged = false;
+    propertyData.isMortgaged = false;
+    updateMortgageUI();
+    
+    showToast(`Property unmortgaged for ₹${formatNumber(paymentAmount)}`);
+  }
+}
+
+// Update loadProperty function to check mortgage state:
+async function loadProperty() {
+  const propertiesRef = database.ref(`rooms/${roomId}/${currentPlayer}/properties`);
+  const snapshot = await propertiesRef.once('value');
+  const properties = snapshot.val();
+  
+  if (!properties || !Array.isArray(properties)) {
+    showToast('Property not found');
+    setTimeout(() => window.history.back(), 1500);
+    return;
+  }
+  
+  // Find property by ID
+  propertyIndex = properties.findIndex(p => p.id === propertyId);
+  
+  if (propertyIndex === -1) {
+    showToast('Property not found');
+    setTimeout(() => window.history.back(), 1500);
+    return;
+  }
+  
+  propertyData = properties[propertyIndex];
+  
+  // Initialize house count and mortgage state from saved data
+  currentHouseCount = propertyData.houses || 0;
+  houseCounter = currentHouseCount;
+  isMortgaged = propertyData.isMortgaged || false;
+  
+  // Update UI
+  document.getElementById('pageTitle').textContent = propertyData.name;
+  document.getElementById('propertyName').textContent = propertyData.name;
+  document.getElementById('propertyIcon').textContent = getPropertyIcon(propertyData);
+  document.getElementById('propertyCard').style.background = propertyData.color;
+  document.getElementById('propertyCard').style.borderColor = 
+    (propertyData.color === '#FFFFFF' || propertyData.color === '#F5F5F5') ? '#1F2937' : propertyData.color;
+  
+  renderPropertyDetails(propertyData);
+  updateCounter();
+  updateMortgageUI();
+}
+
+// Initialize
+loadProperty();
+ </script>
+</body>
+</html>

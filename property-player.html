@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Property - Monopoly Money</title>
+  
+  <!-- Google Material Symbols -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #F5F5F5;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 30px;
+    }
+
+    .back-btn {
+      width: 48px;
+      height: 48px;
+      background: white;
+      border: none;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: #F9FAFB;
+      transform: translateX(-4px);
+    }
+
+    .back-btn .material-symbols-rounded {
+      font-size: 24px;
+      color: #1F2937;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 16px;
+      color: #9CA3AF;
+    }
+
+    .property-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .property-card {
+      border: 2px solid #1F2937;
+      border-radius: 16px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .property-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .property-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .property-icon {
+      font-size: 28px;
+      color: #1F2937;
+    }
+
+    .property-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1F2937;
+    }
+
+    .property-details {
+      display: none;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 2px solid rgba(0, 0, 0, 0.1);
+      background: white;
+      margin: 24px -24px -24px;
+      padding: 24px;
+      border-radius: 0 0 14px 14px;
+    }
+
+    .property-card.expanded .property-details {
+      display: block;
+    }
+
+    .detail-section {
+      margin-bottom: 20px;
+    }
+
+    .detail-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .detail-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1F2937;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 15px;
+      color: #1F2937;
+    }
+
+    .detail-row.highlight {
+      color: #EF4444;
+      font-weight: 600;
+    }
+
+    .detail-label {
+      color: #6B7280;
+    }
+
+    .detail-value {
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .detail-row.highlight .detail-value {
+      color: #EF4444;
+    }
+
+    .divider {
+      height: 1px;
+      background: #E5E7EB;
+      margin: 12px 0;
+    }
+
+    .sell-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid #E5E7EB;
+    }
+
+    .sell-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1F2937;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .house-info {
+      font-size: 14px;
+      color: #10B981;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .manage-btn {
+      background: #1F2937;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .manage-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .empty-state-text {
+      font-size: 20px;
+      font-weight: 500;
+      color: #9CA3AF;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <button class="back-btn" onclick="window.history.back()">
+        <span class="material-symbols-rounded">arrow_back</span>
+      </button>
+      <h1 class="page-title">Manage Property</h1>
+      <p class="page-subtitle">Manage your Properties</p>
+    </div>
+
+    <div class="property-list" id="propertyList">
+      <!-- Properties will be dynamically inserted here -->
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <p class="empty-state-text">No Property Found!</p>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrPA---Ak_l9jqwHouWiC2byZH6EdR9Ts",
+  authDomain: "monopolymoneyapp.firebaseapp.com",
+  databaseURL: "https://monopolymoneyapp-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "monopolymoneyapp",
+  storageBucket: "monopolymoneyapp.firebasestorage.app",
+  messagingSenderId: "734008146391",
+  appId: "1:734008146391:web:8ebbf21a9c324b25587392",
+  measurementId: "G-3377SYGJYX"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+  </script>
+  
+  <script>
+    let roomId = new URLSearchParams(window.location.search).get('room');
+    let currentPlayer = new URLSearchParams(window.location.search).get('player');
+
+    if (!roomId || !currentPlayer) {
+      window.location.href = 'room.html';
+    }
+
+    function formatCurrency(amount) {
+      return `₹ ${amount}`;
+    }
+
+    function getPropertyIcon(property) {
+      if (property.isStation) return 'train';
+      if (property.isUtility) return property.name.includes('ELECTRIC') ? 'bolt' : 'water_drop';
+      return 'apartment';
+    }
+
+    function createPropertyCard(property, index) {
+      const icon = getPropertyIcon(property);
+      let detailsHTML = '';
+      
+      if (property.isStation) {
+        detailsHTML = `
+          <div class="detail-section">
+            <div class="detail-title">Title Deed</div>
+            <div class="detail-row">
+              <span class="detail-label">Rent</span>
+              <span class="detail-value">${formatCurrency(property.rentSiteOnly)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Rent - with 2 Stations</span>
+              <span class="detail-value">${formatCurrency(property.rent2Stations)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Rent - with 3 Stations</span>
+              <span class="detail-value">${formatCurrency(property.rent3Stations)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Rent - with 4 Stations</span>
+              <span class="detail-value">${formatCurrency(property.rent4Stations)}</span>
+            </div>
+            <div class="divider"></div>
+            <div class="detail-row highlight">
+              <span class="detail-label">Mortgage Value</span>
+              <span class="detail-value">${formatCurrency(property.mortgageValue)}</span>
+            </div>
+          </div>
+        `;
+      } else if (property.isUtility) {
+        detailsHTML = `
+          <div class="detail-section">
+            <div class="detail-title">Title Deed</div>
+            <div style="margin-bottom: 12px; font-size: 13px; line-height: 1.5; color: #6B7280;">
+              ${property.description}
+            </div>
+            <div style="margin-bottom: 12px; font-size: 13px; line-height: 1.5; color: #6B7280;">
+              ${property.description2}
+            </div>
+            <div class="divider"></div>
+            <div class="detail-row highlight">
+              <span class="detail-label">Mortgage Value</span>
+              <span class="detail-value">${formatCurrency(property.mortgageValue)}</span>
+            </div>
+          </div>
+        `;
+      } else {
+        detailsHTML = `
+          <div class="detail-section">
+            <div class="detail-title">Title Deed</div>
+            <div class="detail-row">
+              <span class="detail-label">Rent - Site Only</span>
+              <span class="detail-value">${formatCurrency(property.rentSiteOnly)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Rent - with 1 House</span>
+              <span class="detail-value">${formatCurrency(property.rent1House)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Rent - with 2 House</span>
+              <span class="detail-value">${formatCurrency(property.rent2House)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Rent - with 3 House</span>
+              <span class="detail-value">${formatCurrency(property.rent3House)}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Rent - with 4 House</span>
+              <span class="detail-value">${formatCurrency(property.rent4House)}</span>
+            </div>
+            <div class="detail-row highlight">
+              <span class="detail-label">Rent - with Hotel</span>
+              <span class="detail-value">${formatCurrency(property.rentHotel)}</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="detail-section">
+            <div class="detail-row">
+              <span class="detail-label">Cost of Houses</span>
+              <span class="detail-value">${formatCurrency(property.costPerHouse)}/Per</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Cost of Hotel</span>
+              <span class="detail-value">${property.hotelCost}</span>
+            </div>
+            <div class="detail-row highlight">
+              <span class="detail-label">Mortgage Value</span>
+              <span class="detail-value">${formatCurrency(property.mortgageValue)}</span>
+            </div>
+          </div>
+        `;
+      }
+      
+      // Show house count if property has houses built
+      const houseText = property.houses > 0 
+        ? `<div class="house-info">🏠 ${property.houses === 5 ? 'Hotel' : property.houses + ' House' + (property.houses > 1 ? 's' : '')} Built</div>` 
+        : '';
+
+      // Show mortgage indicator
+      const mortgageText = property.isMortgaged 
+        ? `<div class="house-info" style="color: #EF4444;">🏦 Mortgaged</div>` 
+        : '';
+      
+      /// Use property.color for background, fallback to yellow if missing
+      const bgColor = property.color;
+      const borderColor = (bgColor === '#FFFFFF' || bgColor === '#E0E0E0') ? '#1F2937' : bgColor;
+
+      return `
+        <div class="property-card" style="background: ${bgColor}; border-color: ${borderColor};" onclick="toggleProperty(${index})" id="property-${index}">
+          <div class="property-header">
+            <span class="material-symbols-rounded property-icon">${icon}</span>
+            <span class="property-name">${property.name}</span>
+          </div>
+          
+          <div class="property-details">
+            ${detailsHTML}
+            <div class="sell-section">
+              ${houseText}
+              ${mortgageText}
+              <div class="sell-title">Manage Property</div>
+              <button class="manage-btn" onclick="event.stopPropagation(); manageProperty('${property.id}')">Manage</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleProperty(index) {
+      const card = document.getElementById(`property-${index}`);
+      
+      document.querySelectorAll('.property-card').forEach((otherCard, otherIndex) => {
+        if (otherIndex !== index) {
+          otherCard.classList.remove('expanded');
+        }
+      });
+      
+      card.classList.toggle('expanded');
+    }
+
+    function manageProperty(propertyId) {
+      window.location.href = `manage-property-inside.html?room=${roomId}&player=${currentPlayer}&property=${propertyId}`;
+    }
+
+    function loadPlayerProperties() {
+      const propertiesRef = database.ref(`rooms/${roomId}/${currentPlayer}/properties`);
+      
+      propertiesRef.on('value', (snapshot) => {
+        const propertiesData = snapshot.val();
+        
+        // Check if properties exist
+        if (!propertiesData) {
+          renderProperties([]);
+          return;
+        }
+        
+        // Handle array format (stored by banker when selling)
+        if (Array.isArray(propertiesData)) {
+          renderProperties(propertiesData);
+        } else {
+          // Handle empty or unexpected format
+          renderProperties([]);
+        }
+      });
+    }
+
+    function renderProperties(properties) {
+      const propertyList = document.getElementById('propertyList');
+      const emptyState = document.getElementById('emptyState');
+      
+      if (properties.length === 0) {
+        propertyList.style.display = 'none';
+        emptyState.style.display = 'block';
+      } else {
+        propertyList.style.display = 'flex';
+        emptyState.style.display = 'none';
+        
+        let html = '';
+        properties.forEach((property, index) => {
+          html += createPropertyCard(property, index);
+        });
+        
+        propertyList.innerHTML = html;
+      }
+    }
+
+    // Initialize
+    loadPlayerProperties();
+  </script>
+</body>
+</html>
