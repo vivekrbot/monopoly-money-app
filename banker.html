@@ -444,6 +444,12 @@
         <div class="waiting-text" id="player2Waiting">Waiting for player to join...</div>
       </div>
     </div>
+    <div>
+      <button class="action-btn" onclick="openDesktopView()">
+        <span class="material-symbols-rounded">desktop_windows</span>
+        Desktop View
+      </button>
+    </div>
   </div>
 
   <!-- Amount Modal -->
@@ -463,9 +469,7 @@
         <button class="amount-btn" onclick="addAmount(20)">20</button>
         <button class="amount-btn" onclick="addAmount(50)">50</button>
         <button class="amount-btn" onclick="addAmount(100)">100</button>
-        <button class="amount-btn" onclick="addAmount(200)">200</button>
         <button class="amount-btn" onclick="addAmount(500)">500</button>
-        <button class="amount-btn" onclick="addAmount(1000)">1000</button>
       </div>
 
       <button class="backspace-btn" onclick="backspace()">
@@ -656,6 +660,9 @@
     }
     function viewMortgaged() {
   window.location.href = `bank-mortgaged.html?room=${roomId}`;
+}
+function openDesktopView() {
+  window.open(`banker-desktop.html?room=${roomId}`, '_blank');
 }
     // Set banker as online
     database.ref(`rooms/${roomId}/banker/online`).set(true);
