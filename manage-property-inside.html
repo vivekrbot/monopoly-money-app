@@ -459,7 +459,7 @@ async function buildHouses() {
     return;
   }
   
-  const currentBalance = playerData.balance || 3000;
+  const currentBalance = playerData.balance ?? 3000;
   
   if (currentBalance < totalCost) {
     showToast(`Insufficient balance. Need ₹${formatNumber(totalCost)}, you have ₹${formatNumber(currentBalance)}`);
@@ -507,7 +507,7 @@ async function sellToBank() {
   properties = properties.filter((p, idx) => idx !== propertyIndex);
   
   // Add property value + house build costs back to player balance
-  const newBalance = (playerData.balance || 3000) + totalRefund;
+  const newBalance = (playerData.balance ?? 3000) + totalRefund;
   
   await playerRef.update({
     balance: newBalance,
@@ -717,7 +717,7 @@ async function mortgageProperty() {
     properties[propertyIndex].isMortgaged = true;
     
     // Add mortgage value to balance
-    const newBalance = (playerData.balance || 3000) + mortgageValue;
+    const newBalance = (playerData.balance ?? 3000) + mortgageValue;
     
     await playerRef.update({
       balance: newBalance,
@@ -747,7 +747,7 @@ async function payMortgage() {
   
   if (!playerData) return;
   
-  const currentBalance = playerData.balance || 3000;
+  const currentBalance = playerData.balance ?? 3000;
   
   if (currentBalance < paymentAmount) {
     showToast(`Insufficient balance. Need ₹${formatNumber(paymentAmount)}, you have ₹${formatNumber(currentBalance)}`);

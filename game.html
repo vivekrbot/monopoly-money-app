@@ -440,6 +440,39 @@
         transform: translateX(-50%) translateY(0);
       }
     }
+
+    .toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 2000;
+  display: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  min-width: 280px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.toast.show {
+  display: block;
+  animation: slideUpFade 0.3s ease;
+}
+
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
   </style>
 </head>
 <body>
@@ -572,7 +605,7 @@
       const data = snapshot.val();
       if (data) {
         document.getElementById('playerName').textContent = data.name || '{Name}';
-        document.getElementById('balance').textContent = formatNumber(data.balance || 3000);
+        document.getElementById('balance').textContent = formatNumber(data.balance ?? 3000);
       }
     });
 
@@ -672,7 +705,7 @@
 
       const playerSnapshot = await playerRef.once('value');
       const playerData = playerSnapshot.val();
-      const currentBalance = playerData.balance || 3000;
+      const currentBalance = playerData.balance ?? 3000;
 
       if (currentAmount > currentBalance) {
         showToast('Insufficient balance');
@@ -688,7 +721,7 @@
       if (currentMode === 'player') {
         const opponentSnapshot = await opponentRef.once('value');
         const opponentData = opponentSnapshot.val();
-        const opponentBalance = opponentData.balance || 3000;
+        const opponentBalance = opponentData.balance ?? 3000;
 
         await playerRef.update({ balance: currentBalance - currentAmount });
         await opponentRef.update({ balance: opponentBalance + currentAmount });
@@ -745,6 +778,137 @@
         toast.classList.remove('show');
       }, 3000);
     }
+
+    // Real-time transaction notifications for Players
+function setupPlayerNotifications() {
+  const transactionsRef = database.ref(`rooms/${roomId}/transactions`);
+  
+  // Listen for new transactions
+  transactionsRef.limitToLast(1).on('child_added', (snapshot) => {
+    const transaction = snapshot.val();
+    
+    // Only show notification if transaction is recent (within last 3 seconds)
+    const now = Date.now();
+    if (now - transaction.timestamp < 3000) {
+      displayPlayerNotification(transaction);
+    }
+  });
+}
+
+function displayPlayerNotification(transaction) {
+  const { type, from, to, amount, fromName, toName } = transaction;
+  
+  let message = '';
+  
+  if (type === 'player_to_player') {
+    // Show if I'm the receiver
+    if (to === currentPlayer) {
+      message = `💰 ${fromName} sent you ${formatCurrency(amount)}`;
+    }
+    // Show if I'm the sender
+    else if (from === currentPlayer) {
+      message = `✅ You sent ${formatCurrency(amount)} to ${toName}`;
+    }
+    // Show if I'm watching another transaction
+    else {
+      message = `👀 ${fromName} sent ${formatCurrency(amount)} to ${toName}`;
+    }
+  } else if (type === 'player_to_bank') {
+    if (from === currentPlayer) {
+      message = `🏦 You sent ${formatCurrency(amount)} to Bank`;
+    } else {
+      message = `🏦 ${fromName} sent ${formatCurrency(amount)} to Bank`;
+    }
+  } else if (type === 'bank_to_player' || type === 'banker_to_player') {
+    if (to === currentPlayer) {
+      message = `💸 Banker paid you ${formatCurrency(amount)}`;
+    } else {
+      message = `💸 Banker paid ${formatCurrency(amount)} to ${toName}`;
+    }
+  } else if (type === 'banker_collect') {
+    if (from === currentPlayer) {
+      message = `⚠️ Banker collected ${formatCurrency(amount)} from you`;
+    } else {
+      message = `👀 Banker collected ${formatCurrency(amount)} from ${fromName}`;
+    }
+  }
+  
+  if (message) {
+    showNotification(message);
+  }
+}
+
+// Call this in initialization (after roomId and currentPlayer are set)
+setupPlayerNotifications();
+
+async function sendMoney() {
+  if (selectedAmount === 0) {
+    showNotification('Please select an amount');
+    return;
+  }
+
+  if (!currentAction) return;
+
+  const myRef = database.ref(`rooms/${roomId}/${currentPlayer}`);
+  const mySnapshot = await myRef.once('value');
+  const myData = mySnapshot.val();
+  const myBalance = myData.balance ?? 3000;
+
+  if (selectedAmount > myBalance) {
+    showNotification('Insufficient balance');
+    return;
+  }
+
+  if (currentAction === 'player') {
+    // Send to other player
+    const otherPlayer = currentPlayer === 'player1' ? 'player2' : 'player1';
+    const otherRef = database.ref(`rooms/${roomId}/${otherPlayer}`);
+    const otherSnapshot = await otherRef.once('value');
+    const otherData = otherSnapshot.val();
+
+    if (!otherData) {
+      showNotification('Other player not found');
+      return;
+    }
+
+    const otherBalance = otherData.balance ?? 3000;
+
+    // Update balances
+    await myRef.update({ balance: myBalance - selectedAmount });
+    await otherRef.update({ balance: otherBalance + selectedAmount });
+
+    // Log transaction
+    await database.ref(`rooms/${roomId}/transactions`).push({
+      type: 'player_to_player',
+      from: currentPlayer,
+      fromName: myData.name,
+      to: otherPlayer,
+      toName: otherData.name,
+      amount: selectedAmount,
+      timestamp: Date.now()
+    });
+
+    showNotification(`Sent ${formatCurrency(selectedAmount)} to ${otherData.name}`);
+    
+  } else if (currentAction === 'bank') {
+    // Send to bank (deduct only)
+    await myRef.update({ balance: myBalance - selectedAmount });
+
+    // Log transaction
+    await database.ref(`rooms/${roomId}/transactions`).push({
+      type: 'player_to_bank',
+      from: currentPlayer,
+      fromName: myData.name,
+      amount: selectedAmount,
+      timestamp: Date.now()
+    });
+
+    showNotification(`Sent ${formatCurrency(selectedAmount)} to Bank`);
+  }
+
+  closeAmountModal();
+}
+
   </script>
 </body>
 </html>

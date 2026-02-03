@@ -552,6 +552,130 @@
       }
     }
 
+    .property-item {
+  border: 2px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative; /* Add this */
+}
+
+/* ADD THIS NEW STYLE */
+.override-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  background: #F59E0B;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.override-btn:hover {
+  background: #D97706;
+  transform: scale(1.1);
+}
+
+.override-btn .material-symbols-rounded {
+  font-size: 18px;
+  color: white;
+}
+
+/* Override Modal Styles */
+.override-modal .modal-content {
+  max-width: 420px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1F2937;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.player-select {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.player-option {
+  background: #F9FAFB;
+  border: 2px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.player-option:hover {
+  border-color: #6366F1;
+  background: #F5F7FF;
+}
+
+.player-option.selected {
+  background: #6366F1;
+  border-color: #6366F1;
+  color: white;
+}
+
+.player-option-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.building-count-group {
+  margin-bottom: 20px;
+}
+
+.building-selector {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.building-btn {
+  background: #F9FAFB;
+  border: 2px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 12px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1F2937;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.building-btn:hover {
+  border-color: #10B981;
+  background: #ECFDF5;
+}
+
+.building-btn.selected {
+  background: #10B981;
+  border-color: #10B981;
+  color: white;
+}
+
+.building-btn.hotel {
+  grid-column: span 2;
+}
+
   </style>
 </head>
 <body>
@@ -707,6 +831,45 @@
     </div>
   </div>
 
+  <!-- Override Modal -->
+<div class="modal override-modal" id="overrideModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title">Banker Override</div>
+      <div class="modal-subtitle" id="overridePropertyName">Property Name</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Select Player</label>
+      <div class="player-select">
+        <div class="player-option" id="overridePlayer1" onclick="selectOverridePlayer('player1')">
+          <div class="player-option-name" id="overridePlayer1Name">Player 1</div>
+        </div>
+        <div class="player-option" id="overridePlayer2" onclick="selectOverridePlayer('player2')">
+          <div class="player-option-name" id="overridePlayer2Name">Player 2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group building-count-group">
+      <label class="form-label">Building Count</label>
+      <div class="building-selector">
+        <button class="building-btn selected" onclick="selectBuildingCount(0)">0</button>
+        <button class="building-btn" onclick="selectBuildingCount(1)">1</button>
+        <button class="building-btn" onclick="selectBuildingCount(2)">2</button>
+        <button class="building-btn" onclick="selectBuildingCount(3)">3</button>
+        <button class="building-btn" onclick="selectBuildingCount(4)">4</button>
+        <button class="building-btn hotel" onclick="selectBuildingCount(5)">Hotel</button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeOverrideModal()">Cancel</button>
+      <button class="modal-btn confirm-pay" onclick="confirmOverride()">Assign Property</button>
+    </div>
+  </div>
+</div>
+
   <div class="toast" id="toast"></div>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -740,87 +903,470 @@
 
     document.getElementById('roomIdDisplay').textContent = roomId;
 
-    // Property data
-    const propertyGroups = [
-      {
-        color: "#FFEF3B",
-        properties: [
-          { id: "piccadilly", name: "PICCADILLY", propertyValue: 280 },
-          { id: "leicester", name: "LEICESTER SQUARE", propertyValue: 260 },
-          { id: "coventry", name: "COVENTRY STREET", propertyValue: 260 }
-        ]
+    // Real-time transaction notifications for Banker
+function setupBankerNotifications() {
+  const transactionsRef = database.ref(`rooms/${roomId}/transactions`);
+  
+  // Listen for new transactions
+  transactionsRef.limitToLast(1).on('child_added', (snapshot) => {
+    const transaction = snapshot.val();
+    
+    // Only show notification if transaction is recent (within last 3 seconds)
+    const now = Date.now();
+    if (now - transaction.timestamp < 3000) {
+      displayBankerNotification(transaction);
+    }
+  });
+}
+
+function displayBankerNotification(transaction) {
+  const { type, from, to, amount, fromName, toName } = transaction;
+  
+  let message = '';
+  
+  if (type === 'player_to_player') {
+    message = `💸 ${fromName} sent ${formatCurrency(amount)} to ${toName}`;
+  } else if (type === 'player_to_bank') {
+    message = `🏦 ${fromName} sent ${formatCurrency(amount)} to Bank`;
+  } else if (type === 'bank_to_player') {
+    message = `💰 Bank sent ${formatCurrency(amount)} to ${toName}`;
+  } else if (type === 'banker_to_player') {
+    message = `👔 You paid ${formatCurrency(amount)} to ${toName}`;
+  } else if (type === 'banker_collect') {
+    message = `👔 You collected ${formatCurrency(amount)} from ${fromName}`;
+  }
+  
+  if (message) {
+    showToast(message);
+  }
+}
+
+// Call this in initialization
+setupBankerNotifications();
+
+   // Complete property data with all details
+const propertyGroups = [
+  {
+    color: "#FFEF3B",
+    properties: [
+      { 
+        id: "piccadilly", 
+        name: "PICCADILLY", 
+        propertyValue: 280,
+        rentSiteOnly: 24, 
+        rent1House: 120, 
+        rent2House: 360, 
+        rent3House: 850, 
+        rent4House: 1025, 
+        rentHotel: 1200, 
+        costPerHouse: 150, 
+        hotelCost: "150 + 4Houses", 
+        mortgageValue: 140 
       },
-      {
-        color: "#8B4513",
-        properties: [
-          { id: "oldkent", name: "OLD KENT ROAD", propertyValue: 60 },
-          { id: "whitechapel", name: "WHITECHAPEL ROAD", propertyValue: 60 }
-        ]
+      { 
+        id: "leicester", 
+        name: "LEICESTER SQUARE", 
+        propertyValue: 260,
+        rentSiteOnly: 22, 
+        rent1House: 110, 
+        rent2House: 330, 
+        rent3House: 800, 
+        rent4House: 975, 
+        rentHotel: 1150, 
+        costPerHouse: 150, 
+        hotelCost: "150 + 4Houses", 
+        mortgageValue: 130 
       },
-      {
-        color: "#0080FF",
-        properties: [
-          { id: "parklane", name: "PARK LANE", propertyValue: 350 },
-          { id: "mayfair", name: "MAYFAIR", propertyValue: 400 }
-        ]
-      },
-      {
-        color: "#FF62ED",
-        properties: [
-          { id: "northumberland", name: "NORTHUMBERLAND AVE", propertyValue: 160 },
-          { id: "whitehall", name: "WHITEHALL", propertyValue: 140 },
-          { id: "pallmall", name: "PALL MALL", propertyValue: 140 }
-        ]
-      },
-      {
-        color: "#7DF0FF",
-        properties: [
-          { id: "pentonville", name: "PENTONVILLE ROAD", propertyValue: 120 },
-          { id: "angel", name: "THE ANGEL, ISLINGTON", propertyValue: 100 },
-          { id: "euston", name: "EUSTON ROAD", propertyValue: 100 }
-        ]
-      },
-      {
-        color: "#00A277",
-        properties: [
-          { id: "regent", name: "REGENT STREET", propertyValue: 300 },
-          { id: "oxford", name: "OXFORD STREET", propertyValue: 300 },
-          { id: "bond", name: "BOND STREET", propertyValue: 320 }
-        ]
-      },
-      {
-        color: "#FF3235",
-        properties: [
-          { id: "fleet", name: "FLEET STREET", propertyValue: 220 },
-          { id: "strand", name: "STRAND", propertyValue: 220 },
-          { id: "trafalgar", name: "TRAFALGAR SQUARE", propertyValue: 240 }
-        ]
-      },
-      {
-        color: "#FFA500",
-        properties: [
-          { id: "marlborough", name: "MARLBOROUGH STREET", propertyValue: 180 },
-          { id: "bow", name: "BOW STREET", propertyValue: 180 },
-          { id: "vine", name: "VINE STREET", propertyValue: 200 }
-        ]
-      },
-      {
-        color: "#E0E0E0",
-        properties: [
-          { id: "fenchurch", name: "FENCHURCH STREET", propertyValue: 200 },
-          { id: "liverpool", name: "LIVERPOOL STREET", propertyValue: 200 },
-          { id: "marylebone", name: "MARYLEBONE", propertyValue: 200 },
-          { id: "kingscross", name: "KINGS CROSS", propertyValue: 200 }
-        ]
-      },
-      {
-        color: "#FFFFFF",
-        properties: [
-          { id: "electric", name: "ELECTRIC COMPANY", propertyValue: 150 },
-          { id: "water", name: "WATER WORKS", propertyValue: 150 }
-        ]
+      { 
+        id: "coventry", 
+        name: "COVENTRY STREET", 
+        propertyValue: 260,
+        rentSiteOnly: 22, 
+        rent1House: 110, 
+        rent2House: 330, 
+        rent3House: 800, 
+        rent4House: 975, 
+        rentHotel: 1150, 
+        costPerHouse: 150, 
+        hotelCost: "150 + 4Houses", 
+        mortgageValue: 130 
       }
-    ];
+    ]
+  },
+  {
+    color: "#8B4513",
+    properties: [
+      { 
+        id: "oldkent", 
+        name: "OLD KENT ROAD", 
+        propertyValue: 60,
+        rentSiteOnly: 2, 
+        rent1House: 10, 
+        rent2House: 30, 
+        rent3House: 90, 
+        rent4House: 160, 
+        rentHotel: 250, 
+        costPerHouse: 50, 
+        hotelCost: "50 + 4Houses", 
+        mortgageValue: 30 
+      },
+      { 
+        id: "whitechapel", 
+        name: "WHITECHAPEL ROAD", 
+        propertyValue: 60,
+        rentSiteOnly: 4, 
+        rent1House: 20, 
+        rent2House: 60, 
+        rent3House: 180, 
+        rent4House: 320, 
+        rentHotel: 450, 
+        costPerHouse: 50, 
+        hotelCost: "50 + 4Houses", 
+        mortgageValue: 30 
+      }
+    ]
+  },
+  {
+    color: "#0080FF",
+    properties: [
+      { 
+        id: "parklane", 
+        name: "PARK LANE", 
+        propertyValue: 350,
+        rentSiteOnly: 35, 
+        rent1House: 175, 
+        rent2House: 500, 
+        rent3House: 1100, 
+        rent4House: 1300, 
+        rentHotel: 1500, 
+        costPerHouse: 200, 
+        hotelCost: "200 + 4Houses", 
+        mortgageValue: 175 
+      },
+      { 
+        id: "mayfair", 
+        name: "MAYFAIR", 
+        propertyValue: 400,
+        rentSiteOnly: 50, 
+        rent1House: 200, 
+        rent2House: 600, 
+        rent3House: 1400, 
+        rent4House: 1700, 
+        rentHotel: 2000, 
+        costPerHouse: 200, 
+        hotelCost: "200 + 4Houses", 
+        mortgageValue: 200 
+      }
+    ]
+  },
+  {
+    color: "#FF62ED",
+    properties: [
+      { 
+        id: "northumberland", 
+        name: "NORTHUMBERLAND AVENUE", 
+        propertyValue: 160,
+        rentSiteOnly: 12, 
+        rent1House: 60, 
+        rent2House: 180, 
+        rent3House: 500, 
+        rent4House: 700, 
+        rentHotel: 900, 
+        costPerHouse: 100, 
+        hotelCost: "100 + 4Houses", 
+        mortgageValue: 80 
+      },
+      { 
+        id: "whitehall", 
+        name: "WHITEHALL", 
+        propertyValue: 140,
+        rentSiteOnly: 10, 
+        rent1House: 50, 
+        rent2House: 150, 
+        rent3House: 450, 
+        rent4House: 625, 
+        rentHotel: 750, 
+        costPerHouse: 100, 
+        hotelCost: "100 + 4Houses", 
+        mortgageValue: 70 
+      },
+      { 
+        id: "pallmall", 
+        name: "PALL MALL", 
+        propertyValue: 140,
+        rentSiteOnly: 10, 
+        rent1House: 50, 
+        rent2House: 150, 
+        rent3House: 450, 
+        rent4House: 625, 
+        rentHotel: 750, 
+        costPerHouse: 100, 
+        hotelCost: "100 + 4Houses", 
+        mortgageValue: 70 
+      }
+    ]
+  },
+  {
+    color: "#7DF0FF",
+    properties: [
+      { 
+        id: "pentonville", 
+        name: "PENTONVILLE ROAD", 
+        propertyValue: 120,
+        rentSiteOnly: 6, 
+        rent1House: 30, 
+        rent2House: 90, 
+        rent3House: 270, 
+        rent4House: 400, 
+        rentHotel: 550, 
+        costPerHouse: 50, 
+        hotelCost: "50 + 4Houses", 
+        mortgageValue: 60 
+      },
+      { 
+        id: "angel", 
+        name: "THE ANGEL, ISLINGTON", 
+        propertyValue: 100,
+        rentSiteOnly: 6, 
+        rent1House: 30, 
+        rent2House: 90, 
+        rent3House: 270, 
+        rent4House: 400, 
+        rentHotel: 550, 
+        costPerHouse: 50, 
+        hotelCost: "50 + 4Houses", 
+        mortgageValue: 60 
+      },
+      { 
+        id: "euston", 
+        name: "EUSTON ROAD", 
+        propertyValue: 100,
+        rentSiteOnly: 8, 
+        rent1House: 40, 
+        rent2House: 100, 
+        rent3House: 300, 
+        rent4House: 450, 
+        rentHotel: 600, 
+        costPerHouse: 50, 
+        hotelCost: "50 + 4Houses", 
+        mortgageValue: 60 
+      }
+    ]
+  },
+  {
+    color: "#00A277",
+    properties: [
+      { 
+        id: "regent", 
+        name: "REGENT STREET", 
+        propertyValue: 300,
+        rentSiteOnly: 20, 
+        rent1House: 100, 
+        rent2House: 300, 
+        rent3House: 750, 
+        rent4House: 925, 
+        rentHotel: 1100, 
+        costPerHouse: 200, 
+        hotelCost: "200 + 4Houses", 
+        mortgageValue: 120 
+      },
+      { 
+        id: "oxford", 
+        name: "OXFORD STREET", 
+        propertyValue: 300,
+        rentSiteOnly: 18, 
+        rent1House: 90, 
+        rent2House: 250, 
+        rent3House: 700, 
+        rent4House: 875, 
+        rentHotel: 1075, 
+        costPerHouse: 200, 
+        hotelCost: "200 + 4Houses", 
+        mortgageValue: 110 
+      },
+      { 
+        id: "bond", 
+        name: "BOND STREET", 
+        propertyValue: 320,
+        rentSiteOnly: 22, 
+        rent1House: 110, 
+        rent2House: 330, 
+        rent3House: 800, 
+        rent4House: 975, 
+        rentHotel: 1150, 
+        costPerHouse: 200, 
+        hotelCost: "200 + 4Houses", 
+        mortgageValue: 130 
+      }
+    ]
+  },
+  {
+    color: "#FF3235",
+    properties: [
+      { 
+        id: "fleet", 
+        name: "FLEET STREET", 
+        propertyValue: 220,
+        rentSiteOnly: 16, 
+        rent1House: 80, 
+        rent2House: 220, 
+        rent3House: 600, 
+        rent4House: 800, 
+        rentHotel: 1000, 
+        costPerHouse: 150, 
+        hotelCost: "150 + 4Houses", 
+        mortgageValue: 90 
+      },
+      { 
+        id: "strand", 
+        name: "STRAND", 
+        propertyValue: 220,
+        rentSiteOnly: 16, 
+        rent1House: 80, 
+        rent2House: 220, 
+        rent3House: 600, 
+        rent4House: 800, 
+        rentHotel: 1000, 
+        costPerHouse: 150, 
+        hotelCost: "150 + 4Houses", 
+        mortgageValue: 90 
+      },
+      { 
+        id: "trafalgar", 
+        name: "TRAFALGAR SQUARE", 
+        propertyValue: 240,
+        rentSiteOnly: 18, 
+        rent1House: 90, 
+        rent2House: 250, 
+        rent3House: 700, 
+        rent4House: 875, 
+        rentHotel: 1050, 
+        costPerHouse: 150, 
+        hotelCost: "150 + 4Houses", 
+        mortgageValue: 110 
+      }
+    ]
+  },
+  {
+    color: "#FFA500",
+    properties: [
+      { 
+        id: "marlborough", 
+        name: "MARLBOROUGH STREET", 
+        propertyValue: 180,
+        rentSiteOnly: 14, 
+        rent1House: 70, 
+        rent2House: 200, 
+        rent3House: 550, 
+        rent4House: 750, 
+        rentHotel: 950, 
+        costPerHouse: 100, 
+        hotelCost: "100 + 4Houses", 
+        mortgageValue: 80 
+      },
+      { 
+        id: "bow", 
+        name: "BOW STREET", 
+        propertyValue: 180,
+        rentSiteOnly: 14, 
+        rent1House: 70, 
+        rent2House: 200, 
+        rent3House: 550, 
+        rent4House: 750, 
+        rentHotel: 950, 
+        costPerHouse: 100, 
+        hotelCost: "100 + 4Houses", 
+        mortgageValue: 80 
+      },
+      { 
+        id: "vine", 
+        name: "VINE STREET", 
+        propertyValue: 200,
+        rentSiteOnly: 12, 
+        rent1House: 60, 
+        rent2House: 180, 
+        rent3House: 500, 
+        rent4House: 700, 
+        rentHotel: 900, 
+        costPerHouse: 100, 
+        hotelCost: "100 + 4Houses", 
+        mortgageValue: 80 
+      }
+    ]
+  },
+  {
+    color: "#E0E0E0",
+    properties: [
+      { 
+        id: "fenchurch", 
+        name: "FENCHURCH STREET", 
+        propertyValue: 200,
+        rentSiteOnly: 25, 
+        rent2Stations: 50, 
+        rent3Stations: 100, 
+        rent4Stations: 200, 
+        mortgageValue: 100, 
+        isStation: true 
+      },
+      { 
+        id: "liverpool", 
+        name: "LIVERPOOL STREET", 
+        propertyValue: 200,
+        rentSiteOnly: 25, 
+        rent2Stations: 50, 
+        rent3Stations: 100, 
+        rent4Stations: 200, 
+        mortgageValue: 100, 
+        isStation: true 
+      },
+      { 
+        id: "marylebone", 
+        name: "MARYLEBONE", 
+        propertyValue: 200,
+        rentSiteOnly: 25, 
+        rent2Stations: 50, 
+        rent3Stations: 100, 
+        rent4Stations: 200, 
+        mortgageValue: 100, 
+        isStation: true 
+      },
+      { 
+        id: "kingscross", 
+        name: "KINGS CROSS", 
+        propertyValue: 200,
+        rentSiteOnly: 25, 
+        rent2Stations: 50, 
+        rent3Stations: 100, 
+        rent4Stations: 200, 
+        mortgageValue: 100, 
+        isStation: true 
+      }
+    ]
+  },
+  {
+    color: "#FFFFFF",
+    properties: [
+      { 
+        id: "electric", 
+        name: "ELECTRIC COMPANY", 
+        propertyValue: 150,
+        description: "If One 'Utility' is owned, rent is 4 times amount shown on dice.", 
+        description2: "If Both 'Utilities' are owned, rent is 10 times amount shown on dice.", 
+        mortgageValue: 75, 
+        isUtility: true 
+      },
+      { 
+        id: "water", 
+        name: "WATER WORKS", 
+        propertyValue: 150,
+        description: "If One 'Utility' is owned, rent is 4 times amount shown on dice.", 
+        description2: "If Both 'Utilities' are owned, rent is 10 times amount shown on dice.", 
+        mortgageValue: 75, 
+        isUtility: true 
+      }
+    ]
+  }
+];
 
     function formatCurrency(amount) {
       return `₹ ${amount.toLocaleString()}`;
@@ -861,7 +1407,8 @@
 
       if (data && data.name) {
         nameEl.textContent = data.name;
-        balanceEl.textContent = formatCurrency(data.balance || 3000);
+        // NEW (only defaults when null/undefined)
+        balanceEl.textContent = formatCurrency(data.balance ?? 3000);
         statusEl.className = (data.online || data.active) ? 'status-indicator' : 'status-indicator offline';
         
         // Enable action buttons
@@ -904,43 +1451,46 @@
     }
 
     function renderProperties(ownedProperties, mortgagedProperties) {
-      const grid = document.getElementById('propertiesGrid');
-      let html = '';
+  const grid = document.getElementById('propertiesGrid');
+  let html = '';
 
-      propertyGroups.forEach(group => {
-        group.properties.forEach(property => {
-          const ownership = ownedProperties[property.id];
-          const isMortgaged = mortgagedProperties.has(property.id);
-          
-          let statusText = 'Available';
-          let statusClass = 'available';
-          
-          if (isMortgaged) {
-            statusText = 'Mortgaged';
-            statusClass = 'mortgaged';
-          } else if (ownership) {
-            statusText = `Owned by ${ownership.name}`;
-            statusClass = '';
-          }
+  propertyGroups.forEach(group => {
+    group.properties.forEach(property => {
+      const ownership = ownedProperties[property.id];
+      const isMortgaged = mortgagedProperties.has(property.id);
+      
+      let statusText = 'Available';
+      let statusClass = 'available';
+      
+      if (isMortgaged) {
+        statusText = 'Mortgaged';
+        statusClass = 'mortgaged';
+      } else if (ownership) {
+        statusText = `Owned by ${ownership.name}`;
+        statusClass = '';
+      }
 
-          // Filter logic
-          if (currentFilter === 'available' && ownership) return;
-          if (currentFilter === 'owned' && !ownership) return;
-          if (currentFilter === 'mortgaged' && !isMortgaged) return;
+      // Filter logic
+      if (currentFilter === 'available' && ownership) return;
+      if (currentFilter === 'owned' && !ownership) return;
+      if (currentFilter === 'mortgaged' && !isMortgaged) return;
 
-          html += `
-            <div class="property-item" onclick="handlePropertyClick('${property.id}', ${ownership ? `'${ownership.owner}'` : 'null'})">
-              <div class="property-color-bar" style="background: ${group.color};"></div>
-              <div class="property-name-text">${property.name}</div>
-              <div class="property-price">${formatCurrency(property.propertyValue)}</div>
-              <div class="property-owner ${statusClass}">${statusText}</div>
-            </div>
-          `;
-        });
-      });
+      html += `
+        <div class="property-item" onclick="handlePropertyClick('${property.id}', ${ownership ? `'${ownership.owner}'` : 'null'})">
+          <button class="override-btn" onclick="event.stopPropagation(); openOverrideModal('${property.id}', '${property.name}', '${group.color}', ${property.propertyValue})">
+            <span class="material-symbols-rounded">edit</span>
+          </button>
+          <div class="property-color-bar" style="background: ${group.color};"></div>
+          <div class="property-name-text">${property.name}</div>
+          <div class="property-price">${formatCurrency(property.propertyValue)}</div>
+          <div class="property-owner ${statusClass}">${statusText}</div>
+        </div>
+      `;
+    });
+  });
 
-      grid.innerHTML = html || '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #9CA3AF;">No properties match this filter</div>';
-    }
+  grid.innerHTML = html || '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #9CA3AF;">No properties match this filter</div>';
+}
 
     function filterProperties(filter, element) {
       currentFilter = filter;
@@ -1023,35 +1573,54 @@
     }
 
     async function confirmTransaction() {
-      if (currentAmount === 0) {
-        showToast('Please enter an amount');
-        return;
-      }
+  if (currentAmount === 0) {
+    showToast('Please enter an amount');
+    return;
+  }
 
-      const playerRef = database.ref(`rooms/${roomId}/${currentTransactionPlayer}`);
-      const snapshot = await playerRef.once('value');
-      const playerData = snapshot.val();
+  const playerRef = database.ref(`rooms/${roomId}/${currentTransactionPlayer}`);
+  const snapshot = await playerRef.once('value');
+  const playerData = snapshot.val();
 
-      if (!playerData) return;
+  if (!playerData) return;
 
-      const currentBalance = playerData.balance || 3000;
-      let newBalance;
+  const currentBalance = playerData.balance ?? 3000;
+  let newBalance;
 
-      if (currentTransactionType === 'pay') {
-        newBalance = currentBalance + currentAmount;
-      } else {
-        if (currentAmount > currentBalance) {
-          showToast('Player has insufficient balance');
-          return;
-        }
-        newBalance = currentBalance - currentAmount;
-      }
-
-      await playerRef.update({ balance: newBalance });
-      
-      showToast(`${currentTransactionType === 'pay' ? 'Paid' : 'Collected'} ${formatCurrency(currentAmount)}`);
-      closeModal();
+  if (currentTransactionType === 'pay') {
+    newBalance = currentBalance + currentAmount;
+    
+    // Log transaction
+    await database.ref(`rooms/${roomId}/transactions`).push({
+      type: 'banker_to_player',
+      to: currentTransactionPlayer,
+      toName: playerData.name,
+      amount: currentAmount,
+      timestamp: Date.now()
+    });
+    
+  } else {
+    if (currentAmount > currentBalance) {
+      showToast('Player has insufficient balance');
+      return;
     }
+    newBalance = currentBalance - currentAmount;
+    
+    // Log transaction
+    await database.ref(`rooms/${roomId}/transactions`).push({
+      type: 'banker_collect',
+      from: currentTransactionPlayer,
+      fromName: playerData.name,
+      amount: currentAmount,
+      timestamp: Date.now()
+    });
+  }
+
+  await playerRef.update({ balance: newBalance });
+  
+  showToast(`${currentTransactionType === 'pay' ? 'Paid' : 'Collected'} ${formatCurrency(currentAmount)}`);
+  closeModal();
+}
 
     async function resetBalances() {
       if (!confirm('Reset both players to ₹3,000?')) return;
@@ -1090,6 +1659,116 @@
     // Initialize
     loadPlayers();
     loadProperties();
+
+    // Banker Override Variables
+let overridePropertyId = null;
+let overridePropertyName = null;
+let overridePropertyColor = null;
+let overridePropertyValue = null;
+let overrideSelectedPlayer = null;
+let overrideSelectedBuildings = 0;
+
+function openOverrideModal(propertyId, propertyName, propertyColor, propertyValue) {
+  overridePropertyId = propertyId;
+  overridePropertyName = propertyName;
+  overridePropertyColor = propertyColor;
+  overridePropertyValue = propertyValue;
+  overrideSelectedPlayer = null;
+  overrideSelectedBuildings = 0;
+
+  document.getElementById('overridePropertyName').textContent = propertyName;
+  
+  // Load player names
+  database.ref(`rooms/${roomId}/player1`).once('value').then(snap => {
+    const player1 = snap.val();
+    document.getElementById('overridePlayer1Name').textContent = player1?.name || 'Player 1';
+  });
+  
+  database.ref(`rooms/${roomId}/player2`).once('value').then(snap => {
+    const player2 = snap.val();
+    document.getElementById('overridePlayer2Name').textContent = player2?.name || 'Player 2';
+  });
+
+  // Reset selections
+  document.querySelectorAll('.player-option').forEach(opt => opt.classList.remove('selected'));
+  document.querySelectorAll('.building-btn').forEach(btn => btn.classList.remove('selected'));
+  document.querySelector('.building-btn').classList.add('selected');
+
+  document.getElementById('overrideModal').classList.add('show');
+}
+
+function closeOverrideModal() {
+  document.getElementById('overrideModal').classList.remove('show');
+  overridePropertyId = null;
+  overrideSelectedPlayer = null;
+  overrideSelectedBuildings = 0;
+}
+
+function selectOverridePlayer(player) {
+  overrideSelectedPlayer = player;
+  document.querySelectorAll('.player-option').forEach(opt => opt.classList.remove('selected'));
+  document.getElementById(`override${player.charAt(0).toUpperCase() + player.slice(1)}`).classList.add('selected');
+}
+
+function selectBuildingCount(count) {
+  overrideSelectedBuildings = count;
+  document.querySelectorAll('.building-btn').forEach(btn => btn.classList.remove('selected'));
+  event.target.classList.add('selected');
+}
+
+async function confirmOverride() {
+  if (!overrideSelectedPlayer) {
+    showToast('Please select a player');
+    return;
+  }
+
+  // Get full property data from propertyGroups
+  let propertyData = null;
+  for (let group of propertyGroups) {
+    const found = group.properties.find(p => p.id === overridePropertyId);
+    if (found) {
+      propertyData = {
+        ...found,
+        color: overridePropertyColor,
+        houses: overrideSelectedBuildings,
+        isMortgaged: false
+      };
+      break;
+    }
+  }
+
+  if (!propertyData) {
+    showToast('Property data not found');
+    return;
+  }
+
+  // Check if property already exists
+  const playerRef = database.ref(`rooms/${roomId}/${overrideSelectedPlayer}/properties`);
+  const snapshot = await playerRef.once('value');
+  const properties = snapshot.val() || [];
+
+  // Check if player already owns this property
+  const alreadyOwned = properties.some(p => p.id === overridePropertyId);
+  
+  if (alreadyOwned) {
+    // Update existing property
+    const updatedProperties = properties.map(p => 
+      p.id === overridePropertyId 
+        ? { ...p, houses: overrideSelectedBuildings, isMortgaged: false }
+        : p
+    );
+    await playerRef.set(updatedProperties);
+    showToast(`Updated ${overridePropertyName} with ${overrideSelectedBuildings === 5 ? 'Hotel' : overrideSelectedBuildings + ' houses'}`);
+  } else {
+    // Add new property
+    properties.push(propertyData);
+    await playerRef.set(properties);
+    showToast(`Assigned ${overridePropertyName} to ${overrideSelectedPlayer} with ${overrideSelectedBuildings === 5 ? 'Hotel' : overrideSelectedBuildings + ' houses'}`);
+  }
+
+  closeOverrideModal();
+  loadProperties(); // Refresh display
+}
   </script>
 </body>
 </html>

@@ -538,7 +538,7 @@
 
       if (data && data.name) {
         nameEl.textContent = data.name;
-        balanceEl.textContent = '₹ ' + formatNumber(data.balance || 3000);
+        balanceEl.textContent = '₹ ' + formatNumber(data.balance ?? 3000);
         statusEl.className = data.online ? 'status-dot online' : 'status-dot offline';
         actionsEl.style.display = 'grid';
         waitingEl.style.display = 'none';
@@ -618,7 +618,7 @@
       const playerRef = database.ref(`rooms/${roomId}/${currentPlayer}`);
       const playerSnapshot = await playerRef.once('value');
       const playerData = playerSnapshot.val();
-      const currentBalance = playerData.balance || 3000;
+      const currentBalance = playerData.balance ?? 3000;
 
       let newBalance;
       if (currentAction === 'pay') {

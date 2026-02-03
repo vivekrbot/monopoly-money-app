@@ -628,7 +628,7 @@ async function sellProperty(event, propertyId, playerKey, propertyName, property
   }
   
   const PROPERTY_PRICE = propertyDetails.propertyValue;
-  const currentBalance = playerData.balance || 3000;
+  const currentBalance = playerData.balance ?? 3000;
   
   if (currentBalance < PROPERTY_PRICE) {
     showToast(`${playerData.name} has insufficient balance (₹${formatNumber(currentBalance)})`);
