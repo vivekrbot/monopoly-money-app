@@ -676,6 +676,14 @@
   grid-column: span 2;
 }
 
+.filter-tab.player-filter {
+  background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+  color: white;
+}
+
+.filter-tab.player-filter:hover {
+  background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%);
+}
   </style>
 </head>
 <body>
@@ -787,11 +795,13 @@
       </div>
 
       <div class="filter-tabs">
-        <button class="filter-tab active" onclick="filterProperties('all', this)">All</button>
-        <button class="filter-tab" onclick="filterProperties('available', this)">Available</button>
-        <button class="filter-tab" onclick="filterProperties('owned', this)">Owned</button>
-        <button class="filter-tab" onclick="filterProperties('mortgaged', this)">Mortgaged</button>
-      </div>
+  <button class="filter-tab active" onclick="filterProperties('all', this)">All</button>
+  <button class="filter-tab" onclick="filterProperties('available', this)">Available</button>
+  <button class="filter-tab" onclick="filterProperties('owned', this)">Owned</button>
+  <button class="filter-tab" onclick="filterProperties('mortgaged', this)">Mortgaged</button>
+  <button class="filter-tab player-filter" onclick="filterProperties('player1', this)" id="filterPlayer1">Player 1</button>
+<button class="filter-tab player-filter" onclick="filterProperties('player2', this)" id="filterPlayer2">Player 2</button>
+</div>
 
       <div class="properties-grid" id="propertiesGrid">
         <!-- Properties will be dynamically loaded here -->
@@ -1387,16 +1397,28 @@ const propertyGroups = [
 
     // Load players
     function loadPlayers() {
-      database.ref(`rooms/${roomId}/player1`).on('value', (snapshot) => {
-        const player = snapshot.val();
-        updatePlayerUI('player1', player);
-      });
-
-      database.ref(`rooms/${roomId}/player2`).on('value', (snapshot) => {
-        const player = snapshot.val();
-        updatePlayerUI('player2', player);
-      });
+  database.ref(`rooms/${roomId}/player1`).on('value', (snapshot) => {
+    const player = snapshot.val();
+    updatePlayerUI('player1', player);
+    
+    // Update filter button label
+    const filterBtn = document.getElementById('filterPlayer1');
+    if (filterBtn && player?.name) {
+      filterBtn.textContent = player.name;
     }
+  });
+
+  database.ref(`rooms/${roomId}/player2`).on('value', (snapshot) => {
+    const player = snapshot.val();
+    updatePlayerUI('player2', player);
+    
+    // Update filter button label
+    const filterBtn = document.getElementById('filterPlayer2');
+    if (filterBtn && player?.name) {
+      filterBtn.textContent = player.name;
+    }
+  });
+}
 
     function updatePlayerUI(player, data) {
       const nameEl = document.getElementById(`${player}Name`);
@@ -1453,6 +1475,7 @@ const propertyGroups = [
     function renderProperties(ownedProperties, mortgagedProperties) {
   const grid = document.getElementById('propertiesGrid');
   let html = '';
+  let filteredCount = 0;
 
   propertyGroups.forEach(group => {
     group.properties.forEach(property => {
@@ -1463,7 +1486,7 @@ const propertyGroups = [
       let statusClass = 'available';
       
       if (isMortgaged) {
-        statusText = 'Mortgaged';
+        statusText = `Mortgaged by ${ownership.name}`;
         statusClass = 'mortgaged';
       } else if (ownership) {
         statusText = `Owned by ${ownership.name}`;
@@ -1474,6 +1497,10 @@ const propertyGroups = [
       if (currentFilter === 'available' && ownership) return;
       if (currentFilter === 'owned' && !ownership) return;
       if (currentFilter === 'mortgaged' && !isMortgaged) return;
+      if (currentFilter === 'player1' && ownership?.owner !== 'player1') return;
+      if (currentFilter === 'player2' && ownership?.owner !== 'player2') return;
+
+      filteredCount++;
 
       html += `
         <div class="property-item" onclick="handlePropertyClick('${property.id}', ${ownership ? `'${ownership.owner}'` : 'null'})">
@@ -1489,7 +1516,11 @@ const propertyGroups = [
     });
   });
 
-  grid.innerHTML = html || '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #9CA3AF;">No properties match this filter</div>';
+  if (filteredCount === 0) {
+    html = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #9CA3AF;">No properties match this filter</div>';
+  }
+
+  grid.innerHTML = html;
 }
 
     function filterProperties(filter, element) {
